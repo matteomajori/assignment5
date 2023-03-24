@@ -5,6 +5,7 @@ import pandas as pd
 from utilities import AnalyticalNormalMeasures
 from utilities import HSMeasurements
 from utilities import WHSMeasurements
+from utilities import PrincCompAnalysis
 import random
 
 random.seed(10)
@@ -101,14 +102,17 @@ Values=np.array([df['ABI.BR'][823:1593].values,
                  df['ENI.MI'][823:1593].values])
 returns=np.log(Values[:,2:]/Values[:,1:-1])
 yearlyMeanReturns=np.zeros([3,20])
+
 yearlyMeanReturns[0,:]=returns[:,0:258].mean(1) #mean of the returns of the first year for each company
 yearlyMeanReturns[1,:]=returns[:,259:513].mean(1) #mean of the returns of the second year for each company
 yearlyMeanReturns[2,:]=returns[:,514:769].mean(1) #mean of the returns of the third year for each company
+
+yearlyCovariance=np.zeros([20,20])
 yearlyCovariance=np.cov(returns)
 
 weights= 1/20*np.ones([1, 20])
-H=
+H=10
 numberOfPrincipalComponents=6
 
-ES, VaR = PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha,numberOfPrincipalComponents, portfolioValue)
-
+ES1c, VaR1c = PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha,numberOfPrincipalComponents, portfolioValue)
+print('VaR1c=', VaR1c, 'ES1c=', ES1c)
