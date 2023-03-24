@@ -70,25 +70,25 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
     eval, evect = np.linalg.eig(yearlyCovariance)
 
     #order eigenvalues in descending way
-    eval_desce = np.argsort(eval)[::-1]
+    eval_desce = np.sort(eval)[::-1]
     eval_index = np.argsort(eval)[::-1]
     evect=evect[:,eval_index]
-    yearlyMeanReturns=yearlyMeanReturns[eval_index]
+    yearlyMeanReturns=yearlyMeanReturns[:,eval_index]
 
     #reduced form portfolio
-    mu_hat = evect.T * yearlyMeanReturns
-    w_hat = evect.T * weights
+    mu_hat =np.dot(evect.T , yearlyMeanReturns.T)
+    w_hat = np.dot(evect.T , weights.T)
 
     #computing mean and variance of the reduced ptf up to K
     k=numberOfPrincipalComponents
-    Mean = -np.sum(mu_hat[1:k]*w_hat[1: k]) #*delta????
-    Variance = np.sum(eval_desce[1:k]*(w_hat[1:k]**2)) #*delta????
+    Mean_reduced = np.sum(mu_hat[1:k]*w_hat[1: k]) *H  #mu_red * delta
+    Sigma_reduced = np.sqrt(np.sum(eval_desce[1:k]*(w_hat[1:k]**2))*H) #sqrt(sigma_red*delta)
 
-    VaR = Loss_desce[0, i_star]
-    ES =  (np.sum(w_desce[0, 1:i_star].T * Loss_desce[0, 1:i_star]) / np.sum(w_desce[0, 1:i_star]))
 
-    return Var, ES
+    VaR = Mean_reduced+Sigma_reduced * norm.ppf(alpha) #mu_red * delta +  sigma_red * sqrt(delta) * VaR_std
+    ES = Mean_reduced+Sigma_reduced*  norm.pdf(norm.ppf(alpha)) / (1 - alpha) #mu_red * delta +   sqrt(sigma_red *delta) * ES_std
 
+    return VaR, ES
 
 
 
