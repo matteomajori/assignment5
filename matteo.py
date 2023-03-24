@@ -130,4 +130,5 @@ print('VaR1c=', VaR1c, 'ES1c=', ES1c)
 
 
 #Plausibility Check
-VaR = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
+VaR1d = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
+print('VaR1d=', VaR1d)
