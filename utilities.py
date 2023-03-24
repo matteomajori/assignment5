@@ -85,17 +85,24 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
     Sigma_reduced = np.sqrt(np.sum(eval_desce[1:k]*(w_hat[1:k]**2))*H) #sqrt(sigma_red*delta)
 
 
-    VaR = Mean_reduced+Sigma_reduced * norm.ppf(alpha) #mu_red * delta +  sigma_red * sqrt(delta) * VaR_std
-    ES = Mean_reduced+Sigma_reduced*  norm.pdf(norm.ppf(alpha)) / (1 - alpha) #mu_red * delta +   sqrt(sigma_red *delta) * ES_std
+    VaR = portfolioValue * (Mean_reduced+Sigma_reduced * norm.ppf(alpha)) #mu_red * delta +  sigma_red * sqrt(delta) * VaR_std
+    ES = portfolioValue * (Mean_reduced+Sigma_reduced*  norm.pdf(norm.ppf(alpha)) / (1 - alpha)) #mu_red * delta +   sqrt(sigma_red *delta) * ES_std
 
     return VaR, ES
 
+def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeasureTimeIntervalInDay):
+    # estimation of the order of magnitude of portfolio VaR
+    C = np.corrcoef(returns,rowvar=False) #correlation matrix
+    u=np.percentile(returns,alpha*100) #upper quantile
+    l=np.percentile(returns,(1-alpha)*100) #lower quantile
+
+    sVaR = portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
+    VaR = np.sqrt(sVaR.T*C*sVaR)*portfolioValue
+
+    return VaR
 
 
-
-
-
-#samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
+    #samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
 
 
 #[ES, VaR] = WHSMeasurements(returns, alpha, lambda, weights, portfolioValue,riskMeasureTimeIntervalInDay)
