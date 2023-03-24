@@ -92,12 +92,12 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
 
 def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeasureTimeIntervalInDay):
     # estimation of the order of magnitude of portfolio VaR
-    C = np.corrcoef(returns,rowvar=False) #correlation matrix
+    C = np.corrcoef(returns.T,rowvar=False) #correlation matrix
     u=np.percentile(returns,alpha*100) #upper quantile
     l=np.percentile(returns,(1-alpha)*100) #lower quantile
 
     sVaR = portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
-    VaR = np.sqrt(sVaR.T*C*sVaR)*portfolioValue
+    VaR = np.sqrt(np.dot(np.dot(sVaR,C),sVaR.T)*portfolioValue)
 
     return VaR
 
