@@ -107,6 +107,14 @@ yearlyMeanReturns[0,:]=returns[:,0:258].mean(1) #mean of the returns of the firs
 yearlyMeanReturns[1,:]=returns[:,259:513].mean(1) #mean of the returns of the second year for each company
 yearlyMeanReturns[2,:]=returns[:,514:769].mean(1) #mean of the returns of the third year for each company
 
+#metodo yearlyMeanReturns vettore 20x1
+#yearlyMeanReturns=returns.mean(1)
+
+#calcolo portfoliovalue
+#prices of the stocks at 20 march 2019: Total,Danone,Sanofi,Volkswagen
+#prices=np.array([73.18,23.545,209.8,117.86,93.09919217355464,198.92,166.18,22.675,67.5,63.0,5.347610093999999,71.98,44.19,27.82,68.96,114.5,29.43,15.665,5.544,15.776])
+#portfolioValue=200000
+
 yearlyCovariance=np.zeros([20,20])
 yearlyCovariance=np.cov(returns)
 
