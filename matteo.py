@@ -17,13 +17,14 @@ df= pd.read_csv('EUROSTOXX50_2023_Dataset.csv', index_col=False)
 df.fillna(axis=0,method='ffill',inplace=True)
 
 from DateTime import DateTime
-date3y=df['Date'][823:1593].values
+date_3y=df[df['Date']<='2019-03-20']
+date_3y=date_3y[date_3y['Date']>='2016-03-18']
 
 #matrix with 4 rows (one for each company), with daily value on the columns
-Values=np.array([df['AD.AS'][823:1593].values,
-                 df['ALVG.DE'][823:1593].values,
-                 df['MUVGn.DE'][823:1593].values,
-                 df['OREP.PA'][823:1593].values])
+Values=np.array([date_3y['AD.AS'].values,
+                   date_3y['ALVG.DE'].values,
+                   date_3y['MUVGn.DE'].values,
+                   date_3y['OREP.PA'].values])
 
 
 alpha=0.95
@@ -40,11 +41,11 @@ print('Var0=',Var0,'ES0=',ES0)
 alpha = 0.99
 #Point A)
 #matrix with 3 rows (one for each company), with daily value on the columns
-Values=np.array([df['TTEF.PA'][823:1593].values,
-                 df['DANO.PA'][823:1593].values,
-                 df['SASY.PA'][823:1593].values,
-                 df['VOWG_p.DE'][823:1593].values])
-returns1a=np.log(Values[:,2:]/Values[:,1:-1])
+Values1a=np.array([date_3y['TTEF.PA'].values,
+                 date_3y['DANO.PA'].values,
+                 date_3y['SASY.PA'].values,
+                 date_3y['VOWG_p.DE'].values])
+returns1a=np.log(Values1a[:,2:]/Values1a[:,1:-1])
 #number of shares for each stock
 shares = 10**3 * np.array([25, 20, 20, 10])
 #prices of the stocks at 20 march 2019: Total,Danone,Sanofi,Volkswagen
@@ -59,8 +60,8 @@ print('Var1a=',Var1a,'ES1a=',ES1a)
 M=200
 n=np.size(returns)/4
 Rand_simulation=np.random.randint(1,n-1,M)
-returns1b=returns[:,Rand_simulation]
-VaR1a2,ES1a2=HSMeasurements(returns1b,alpha,weights1a,portfolioValue,riskMeasureTimeIntervalInDay)
+returns1s=returns[:,Rand_simulation]
+VaR1a2,ES1a2=HSMeasurements(returns1s,alpha,weights1a,portfolioValue,riskMeasureTimeIntervalInDay)
 print('VaR1a2=',VaR1a2,'ES1a2=',ES1a2)
 
 
@@ -68,12 +69,12 @@ print('VaR1a2=',VaR1a2,'ES1a2=',ES1a2)
 
 #Point B)
 #matrix with 5 rows (one for each company), with daily value on the columns
-Values = np.array([df['AD.AS'][823:1593].values,
-                 df['AIR.PA'][823:1593].values,
-                 df['BBVA.MC'][823:1593].values,
-                 df['BMWG.DE'][823:1593].values,
-                 df['SCHN.PA'][823:1593].values])
-returns1b = np.log(Values[:, 2:]/Values[:, 1:-1])
+Values1b = np.array([date_3y['AD.AS'].values,
+                 date_3y['AIR.PA'].values,
+                 date_3y['BBVA.MC'].values,
+                 date_3y['BMWG.DE'].values,
+                 date_3y['SCHN.PA'].values])
+returns1b = np.log(Values1b[:, 2:]/Values1b[:, 1:-1])
 lambd = 0.97
 weights1b = 1/5*np.ones([1, 5])
 VaR1b, ES1b = WHSMeasurements(returns1b, alpha, lambd, weights1b, portfolioValue, riskMeasureTimeIntervalInDay)
@@ -81,27 +82,27 @@ print('VaR1b=', VaR1b, 'ES1b=', ES1b)
 
 
 #Point C)
-Values=np.array([df['ABI.BR'][823:1593].values,
-                 df['AD.AS'][823:1593].values,
-                 df['ADSGn.DE'][823:1593].values,
-                 df['AIR.PA'][823:1593].values,
-                 df['AIRP.PA'][823:1593].values,
-                 df['ALVG.DE'][823:1593].values,
-                 df['ASML.AS'][823:1593].values,
-                 df['AXAF.PA'][823:1593].values,
-                 df['BASFn.DE'][823:1593].values,
-                 df['BAYGn.DE'][823:1593].values,
-                 df['BBVA.MC'][823:1593].values,
-                 df['BMWG.DE'][823:1593].values,
-                 df['BNPP.PA'][823:1593].values,
-                 df['CRH.I'][823:1593].values,
-                 df['DANO.PA'][823:1593].values,
-                 df['DB1Gn.DE'][823:1593].values,
-                 df['DPWGn.DE'][823:1593].values,
-                 df['DTEGn.DE'][823:1593].values,
-                 df['ENEI.MI'][823:1593].values,
-                 df['ENI.MI'][823:1593].values])
-returns1c=np.log(Values[:,2:]/Values[:,1:-1])
+Values1c=np.array([date_3y['ABI.BR'].values,
+                 date_3y['AD.AS'].values,
+                 date_3y['ADSGn.DE'].values,
+                 date_3y['AIR.PA'].values,
+                 date_3y['AIRP.PA'].values,
+                 date_3y['ALVG.DE'].values,
+                 date_3y['ASML.AS'].values,
+                 date_3y['AXAF.PA'].values,
+                 date_3y['BASFn.DE'].values,
+                 date_3y['BAYGn.DE'].values,
+                 date_3y['BBVA.MC'].values,
+                 date_3y['BMWG.DE'].values,
+                 date_3y['BNPP.PA'].values,
+                 date_3y['CRH.I'].values,
+                 date_3y['DANO.PA'].values,
+                 date_3y['DB1Gn.DE'].values,
+                 date_3y['DPWGn.DE'].values,
+                 date_3y['DTEGn.DE'].values,
+                 date_3y['ENEI.MI'].values,
+                 date_3y['ENI.MI'].values])
+returns1c=np.log(Values1c[:,2:]/Values1c[:,1:-1])
 yearlyMeanReturns=np.zeros([3,20])
 
 yearlyMeanReturns[0,:]=returns1c[:,0:258].mean(1) #mean of the returns of the first year for each company
