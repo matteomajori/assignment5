@@ -97,7 +97,7 @@ def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeas
     l=np.percentile(returns,(1-alpha)*100) #lower quantile
 
     sVaR = portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
-    VaR = np.sqrt(np.dot(np.dot(sVaR,C),sVaR.T)*portfolioValue)
+    VaR = np.sqrt(np.dot(np.dot(sVaR,C),sVaR.T))*portfolioValue
 
     return VaR
 
