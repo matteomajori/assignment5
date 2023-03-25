@@ -21,6 +21,7 @@ date_3y=df[df['Date']<='2019-03-20']
 date_3y=date_3y[date_3y['Date']>='2016-03-18']
 
 #matrix with 4 rows (one for each company), with daily value on the columns
+#portfolio with Adidas, Allianz, Munich Re and L’Oréal
 Values=np.array([date_3y['AD.AS'].values,
                    date_3y['ALVG.DE'].values,
                    date_3y['MUVGn.DE'].values,
@@ -28,9 +29,9 @@ Values=np.array([date_3y['AD.AS'].values,
 
 
 alpha=0.95
-weights=1/4*np.ones([1,4])
+weights=1/4*np.ones([1,4]) #equally weighted
 riskMeasureTimeIntervalInDay=1
-portfolioValue=10000000
+portfolioValue=10**7
 returns=np.log(Values[:,2:]/Values[:,1:-1])
 Var0,ES0=AnalyticalNormalMeasures(alpha, weights, portfolioValue, riskMeasureTimeIntervalInDay, returns)
 print('Var0=',Var0,'ES0=',ES0)
@@ -63,7 +64,6 @@ Rand_simulation=np.random.randint(1,n-1,M)
 returns1s=returns[:,Rand_simulation]
 VaR1a2,ES1a2=HSMeasurements(returns1s,alpha,weights1a,portfolioValue,riskMeasureTimeIntervalInDay)
 print('VaR1a2=',VaR1a2,'ES1a2=',ES1a2)
-
 
 
 

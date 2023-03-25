@@ -13,8 +13,6 @@ def printer(x):
 ##point 0
 def AnalyticalNormalMeasures(alpha, weights, portfolioValue, riskMeasureTimeIntervalInDay, returns):
 
-
-
     #Covariance matrix
     Cov=riskMeasureTimeIntervalInDay*(np.cov(returns))
     #mean of the normal distribution
@@ -97,7 +95,7 @@ def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeas
     l=np.percentile(returns,(1-alpha)*100) #lower quantile
 
     sVaR = portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
-    VaR = np.sqrt(np.dot(np.dot(sVaR,C),sVaR.T))*portfolioValue
+    VaR = np.sqrt(np.sum(np.dot(sVaR,C)*sVaR))*portfolioValue
 
     return VaR
 
