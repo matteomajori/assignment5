@@ -1,4 +1,3 @@
-aaa
 from DateTime import DateTime
 #from pandas import pd
 import math as mt
@@ -13,8 +12,6 @@ def printer(x):
 
 ##point 0
 def AnalyticalNormalMeasures(alpha, weights, portfolioValue, riskMeasureTimeIntervalInDay, returns):
-
-
 
     #Covariance matrix
     Cov=riskMeasureTimeIntervalInDay*(np.cov(returns))
@@ -71,32 +68,39 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
     eval, evect = np.linalg.eig(yearlyCovariance)
 
     #order eigenvalues in descending way
-    eval_desce = np.argsort(eval)[::-1]
+    eval_desce = np.sort(eval)[::-1]
     eval_index = np.argsort(eval)[::-1]
     evect=evect[:,eval_index]
-    yearlyMeanReturns=yearlyMeanReturns[eval_index]
+    yearlyMeanReturns=yearlyMeanReturns[:,eval_index]
 
     #reduced form portfolio
-    mu_hat = evect.T * yearlyMeanReturns
-    w_hat = evect.T * weights
+    mu_hat =np.dot(evect.T , yearlyMeanReturns.T)
+    w_hat = np.dot(evect.T , weights.T)
 
     #computing mean and variance of the reduced ptf up to K
     k=numberOfPrincipalComponents
-    Mean = -np.sum(mu_hat[1:k]*w_hat[1: k]) #*delta????
-    Variance = np.sum(eval_desce[1:k]*(w_hat[1:k]**2)) #*delta????
-
-    VaR = Loss_desce[0, i_star]
-    ES =  (np.sum(w_desce[0, 1:i_star].T * Loss_desce[0, 1:i_star]) / np.sum(w_desce[0, 1:i_star]))
-
-    return Var, ES
+    Mean_reduced = np.sum(mu_hat[1:k]*w_hat[1: k]) *H  #mu_red * delta
+    Sigma_reduced = np.sqrt(np.sum(eval_desce[1:k]*(w_hat[1:k]**2))*H) #sqrt(sigma_red*delta)
 
 
+    VaR = portfolioValue * (Mean_reduced+Sigma_reduced * norm.ppf(alpha)) #mu_red * delta +  sigma_red * sqrt(delta) * VaR_std
+    ES = portfolioValue * (Mean_reduced+Sigma_reduced*  norm.pdf(norm.ppf(alpha)) / (1 - alpha)) #mu_red * delta +   sqrt(sigma_red *delta) * ES_std
+
+    return VaR, ES
+
+def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeasureTimeIntervalInDay):
+    # estimation of the order of magnitude of portfolio VaR
+    C = np.corrcoef(returns.T,rowvar=False) #correlation matrix
+    u=np.percentile(returns,alpha*100) #upper quantile
+    l=np.percentile(returns,(1-alpha)*100) #lower quantile
+
+    sVaR = portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
+    VaR = np.sqrt(np.sum(np.dot(sVaR,C)*sVaR))*portfolioValue
+
+    return VaR
 
 
-
-
-
-#samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
+    #samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
 
 
 #[ES, VaR] = WHSMeasurements(returns, alpha, lambda, weights, portfolioValue,riskMeasureTimeIntervalInDay)
