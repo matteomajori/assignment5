@@ -65,6 +65,8 @@ returns1s=returns[:,Rand_simulation]
 VaR1a2,ES1a2=HSMeasurements(returns1s,alpha,weights1a,portfolioValue,riskMeasureTimeIntervalInDay)
 print('VaR1a2=',VaR1a2,'ES1a2=',ES1a2)
 
+VaR_check1a = plausibilityCheck(returns1a, weights1a, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
+print('VaR_check1a=', VaR_check1a)
 
 
 #Point B)
@@ -79,6 +81,9 @@ lambd = 0.97
 weights1b = 1/5*np.ones([1, 5])
 VaR1b, ES1b = WHSMeasurements(returns1b, alpha, lambd, weights1b, portfolioValue, riskMeasureTimeIntervalInDay)
 print('VaR1b=', VaR1b, 'ES1b=', ES1b)
+
+VaR_check1b = plausibilityCheck(returns1b, weights1b, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
+print('VaR_check1b=', VaR_check1b)
 
 
 #Point C)
@@ -131,5 +136,5 @@ print('VaR1c=', VaR1c, 'ES1c=', ES1c)
 
 
 #Plausibility Check
-VaR_check = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
-print('VaR_check=', VaR_check)
+VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
+print('VaR_check1c=', VaR_check1c)
