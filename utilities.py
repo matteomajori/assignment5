@@ -116,3 +116,5 @@ def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeas
 
 
 #VaR = DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears)
+
+#777
