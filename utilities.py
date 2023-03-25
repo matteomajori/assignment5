@@ -96,7 +96,7 @@ def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeas
 
     sVaR = portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
     VaR = np.sqrt(np.sum(np.dot(sVaR,C)*sVaR))*portfolioValue
-
+    # VaR =np.sqrt(np.dot(np.dot(sVaR, C), sVaR)) * portfolioValue
     return VaR
 
 
