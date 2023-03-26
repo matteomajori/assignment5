@@ -13,15 +13,20 @@ df.fillna(axis=0,method='ffill',inplace=True) #filling the nan values with the p
 #df_3y=df[df['Date']>='2016-03-18' and df['Date']<='2019-03-20']
 
 #3 years estimation
-df_3y=df[df['Date']<='2019-03-20']
-df_3y=df_3y[df_3y['Date']>='2016-03-18']
+# df_3y=df[df['Date']<='2019-03-20']
+# df_3y=df_3y[df_3y['Date']>='2016-03-18']
 #print(df_3y)
 
 #Ptf with Adidas, Allianz, Munich Re and L’Oréal
-df0=np.array([df_3y['AD.AS'].values,
-                 df_3y['ALVG.DE'].values,
-                 df_3y['MUVGn.DE'].values,
-                 df_3y['OREP.PA'].values]).T
+selected_columns=['AD.AS','ALVG.DE','MUVGn.DE','OREP.PA']
+df0=df[selected_columns]
+
+df0=df0[df0['Date']>='2016-03-18']
+df0=df0[df0['Date']<='2019-03-20']
+# df0=np.array([df_3y['AD.AS'].values,
+#                  df_3y['ALVG.DE'].values,
+#                  df_3y['MUVGn.DE'].values,
+#                  df_3y['OREP.PA'].values]).T
 # df1=np.array([df_3y['AD.AS'],df_3y['ALVG.DE'],df_3y['MUVGn.DE'],df_3y['OREP.PA']])
 # print(df1)
 portfolioValue0=10**7
@@ -34,3 +39,7 @@ returns0=np.log(df0[1:,:]/df0[:-1,:]) # df0[1:,:] selects all rows except the fi
 #returns0 will be a 769x4 matrix
 Var0,ES0=AnalyticalNormalMeasures(alpha0, weights0, portfolioValue0, riskMeasureTimeIntervalInDay, returns0)
 print('Var0=',Var0,'ES0=',ES0)
+
+##1. Case study:
+alpha=0.99
+#ptf A
