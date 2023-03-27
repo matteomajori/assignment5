@@ -46,6 +46,8 @@ def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureT
     #weights exponentially decreasing
     #w = C*lambd**(np.linspace(0, int(n) - 1, num=int(n)))
     w = C * lambd ** (np.arange(n-1,-1,-1))
+    for i in range(n):
+        w1[i]=C*lambd**i
 
     Loss = -portfolioValue*np.dot(returns,weights).T
     Loss_desce = np.sort(Loss).T[::-1].T

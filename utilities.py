@@ -26,9 +26,6 @@ def AnalyticalNormalMeasures(alpha, weights, portfolioValue, riskMeasureTimeInte
     ES = portfolioValue * (Mean + Standard_Dev * norm.pdf(norm.ppf(alpha)) / (1 - alpha))
     return VaR, ES
 
-
-
-
 ##point 1
 ##a
 def HSMeasurements(returns, alpha, weights, portfolioValue, riskMeasureTimeIntervalInDay):
@@ -43,15 +40,22 @@ def HSMeasurements(returns, alpha, weights, portfolioValue, riskMeasureTimeInter
     return VaR,ES
 ##b
 def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureTimeIntervalInDay):
-    n=np.size(returns)/4
+    n=len(returns.T)
     #normalized factor
     C=(1-lambd)/(1-lambd**n)
     #weights exponentially decreasing
-    w = C*lambd**(np.linspace(0, int(n) - 1, num=int(n)))
+    w = C*lambd**(np.arange(0, n, 1))
 
     Loss = -portfolioValue*np.dot(returns.T,weights.T).T
     Loss_desce = np.sort(Loss).T[::-1].T
     index_w = np.argsort(Loss)[::-1]
+
+    lambdas_sorted=np.zeros((len(Loss_desce),1))
+    for i in range(len(Loss_desce)):
+        # we order the weights of the WHS following the order of the losses
+        lambdas_sorted[i] = w[Loss == Loss_desce[0,i]]
+    # we find the greatest i such that sum(lambdas[i:end]) <= 1 - alpha
+
     w_desce = w[index_w]
     #We look for i_star: the largest value s.t. sum(w_i, i=1,..,i_star)<=1-alpha
     # i = 1
@@ -73,16 +77,16 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
     eval_index = np.argsort(eval)[::-1]
     #reordering the eigenvectors
     evect=evect[:,eval_index]
-    yearlyMeanReturns=yearlyMeanReturns[:,eval_index]
+    yearlyMeanReturns=yearlyMeanReturns[eval_index]
 
     #reduced form portfolio
-    mu_hat =np.dot(evect , yearlyMeanReturns.T)
+    mu_hat =np.dot(evect , yearlyMeanReturns)
     w_hat = np.dot(evect , weights.T)
 
     #computing mean and variance of the reduced ptf up to K
     k=numberOfPrincipalComponents
-    Mean_reduced = -np.sum(mu_hat[1:k]*w_hat[1: k]) *H  #mu_red * delta
-    Sigma_reduced = np.sqrt(np.sum(eval_desce[1:k]*np.square(w_hat[1:k]))*H) #sqrt(sigma_red*delta)
+    Mean_reduced = -np.sum(mu_hat[0:k]*w_hat[0: k]) *H  #mu_red * delta
+    Sigma_reduced = np.sqrt(np.sum(eval_desce[0:k]*np.square(w_hat[0:k]))*H) #sqrt(sigma_red*delta)
 
 
     VaR = portfolioValue * (Mean_reduced+Sigma_reduced * norm.ppf(alpha)) #mu_red * delta +  sigma_red * sqrt(delta) * VaR_std
@@ -103,8 +107,31 @@ def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeas
 
     return VaR
 
+def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend, volatility,
+                          timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
+    M = 10 ** 6
+    # compute d1,d2
+    d1 = (np.log(stockPrice / strike) + (rate + volatility ** 2 / 2.) * timeToMaturityInYears) / (
+            volatility * np.sqrt(timeToMaturityInYears))
+    d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
+    call_price = stockPrice * norm.cdf(d1) - strike * np.exp(-rate * timeToMaturityInYears) * norm.cdf(d2)
+    put_price = strike * np.exp(-rate * timeToMaturityInYears) - stockPrice * call_price
+    # Random indexes: to check
+    n = np.size(logReturns)
+    Rand_simulation = np.random.randint(1, n, M)
+    rand_returns = logReturns[:, Rand_simulation]
+    stockPrice_new = stockPrice * np.exp(rand_returns)
+    # compute put and call price at next step
+    call_price_new = stockPrice_new * norm.cdf(d1) - strike * np.exp(-rate * timeToMaturityInYears) * norm.cdf(d2)
+    put_price_new = strike * np.exp(-rate * timeToMaturityInYears) - stockPrice_new * call_price_new
+    # Loss using MonteCarlo
+    Loss = numberOfPuts * (-put_price_new + put_price) + numberOfShares * (-stockPrice_new + stockPrice)
+    # compute VaR
+    # the delta should be in days?
+    VaR = (riskMeasureTimeIntervalInYears * np.percentile(Loss, 100 * alpha))
+    return VaR
 
-    #samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
+#samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
 
 
 #[ES, VaR] = WHSMeasurements(returns, alpha, lambda, weights, portfolioValue,riskMeasureTimeIntervalInDay)
