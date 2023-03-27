@@ -134,20 +134,7 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
     VaR = (riskMeasureTimeIntervalInYears * np.percentile(Loss, 100 * alpha))
     return VaR
 
-#ciao
+
 #samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
-
-
-#[ES, VaR] = WHSMeasurements(returns, alpha, lambda, weights, portfolioValue,riskMeasureTimeIntervalInDay)
-
-
-#[ES, VaR] = PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha,numberOfPrincipalComponents, portfolioValue)
-
-
-#VaR = plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
-
-
-#VaR = FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha,NumberOfDaysPerYears)
-
 
 #VaR = DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears)
