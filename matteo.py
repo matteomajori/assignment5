@@ -146,4 +146,4 @@ riskMeasureTimeIntervalInYears=1
 NumberOfDaysPerYears=256
 VaR = FullMonteCarloVaR(returns3, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility,
                         timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha,NumberOfDaysPerYears)
-
+print(VaR)

@@ -68,7 +68,6 @@ def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureT
     ES = riskMeasureTimeIntervalInDay*(np.sum(w_desce[0,1:i_star].T*Loss_desce[0,1:i_star])/np.sum(w_desce[0,1:i_star]))
     return VaR, ES
 ##c
-
 def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, numberOfPrincipalComponents, portfolioValue):
     eval, evect = np.linalg.eig(yearlyCovariance)
 
