@@ -130,6 +130,7 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
     VaR = (riskMeasureTimeIntervalInYears * np.percentile(Loss, 100 * alpha))
     return VaR
 
+#ciao
 #samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
 
 
