@@ -7,6 +7,7 @@ from utilities import HSMeasurements
 from utilities import WHSMeasurements
 from utilities import PrincCompAnalysis
 from utilities import plausibilityCheck
+from utilities import FullMonteCarloVaR
 import random
 
 random.seed(134)
@@ -21,11 +22,6 @@ df_3y=df[df['Date']<='2019-03-20']
 df_3y=df_3y[df_3y['Date']>='2016-03-21']
 
 #matrix with 4 rows (one for each company), with daily value on the columns
-#portfolio with Adidas, Allianz, Munich Re and L’Oréal
-# Values=np.array([date_3y['AD.AS'].values,
-#                    date_3y['ALVG.DE'].values,
-#                    date_3y['MUVGn.DE'].values,
-#                    date_3y['OREP.PA'].values])
 #Ptf with Adidas, Allianz, Munich Re and L’Oréal
 selected_columns0=['AD.AS','ALVG.DE','MUVGn.DE','OREP.PA']
 df0=np.array(df_3y[selected_columns0]).T
@@ -52,7 +48,9 @@ returns1a=np.log(df1a[:,1:]/df1a[:,0:-1])
 #number of shares for each company
 shares = 10**3 * np.array([25, 20, 20, 10])
 #prices of the stocks at 20 march 2019: Total,Danone,Sanofi,Volkswagen
-prices=np.array([50.36,68.96,78.9858496,143.92])
+#prices=np.array([50.36,68.96,78.9858496,143.92])
+df_3y = df_3y.set_index('Date')
+prices=np.array(df_3y[selected_columns1a].loc['2019-03-20'])
 position_val=shares*prices
 portfolioValue=np.sum(position_val)
 weights1a=position_val/portfolioValue
@@ -106,7 +104,7 @@ yearlyMeanReturns=returns1c.mean(1)*256
 yearlyCovariance=np.zeros([20,20])
 yearlyCovariance=np.cov(returns1c)*256
 
-weights1c= 1/20*np.ones([1, 20])  #equally weighted portfolio
+weights1c= 1/20*np.ones(20)  #equally weighted portfolio
 H=10
 numberOfPrincipalComponents=6
 # numberOfPrincipalComponents=0
@@ -127,19 +125,25 @@ dates=pd.read_csv('dates.csv')
 dates=dates['DATES']
 discounts=pd.read_csv('discounts.csv')
 discounts=discounts['DISCOUNTS']
-alpha=0.99
+
 df_2y=df[df['Date']<='2023-01-31']
 df_2y=df_2y[df_2y['Date']>='2021-02-01']
 df3=np.array(df_2y['VNAn.DE']).T
 returns3=np.log(df3[1:]/df3[:-1])
 
+alpha=0.99
 strike=25
 volatility=15.4/100
 dividend=3.1/100 #dividend yield
 notional_2=25870000
-#price=
-
-rate=2.391334809477566
-VaR = FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility,
+df = df.set_index('Date')
+stockPrice=df['VNAn.DE'].loc['2023-01-31'] #25.87
+numberOfShares=notional_2/stockPrice
+numberOfPuts=numberOfShares
+rate=2.391334809477566/100
+timeToMaturityInYears=0.175342465753425 #yearfrac('31-Gen-2023','05-Apr-2023',3)
+riskMeasureTimeIntervalInYears=1
+NumberOfDaysPerYears=256
+VaR = FullMonteCarloVaR(returns3, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility,
                         timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha,NumberOfDaysPerYears)
 

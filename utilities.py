@@ -48,15 +48,15 @@ def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureT
 
     Loss = -portfolioValue*np.dot(returns.T,weights.T).T
     Loss_desce = np.sort(Loss).T[::-1].T
-    index_w = np.argsort(Loss)[::-1]
+    index_w = np.argsort(Loss).T[::-1]
 
-    lambdas_sorted=np.zeros((len(Loss_desce),1))
-    for i in range(len(Loss_desce)):
-        # we order the weights of the WHS following the order of the losses
-        lambdas_sorted[i] = w[Loss == Loss_desce[0,i]]
-    # we find the greatest i such that sum(lambdas[i:end]) <= 1 - alpha
+    # lambdas_sorted=np.zeros((len(Loss_desce),1))
+    # for i in range(len(Loss_desce)):
+    #     # we order the weights of the WHS following the order of the losses
+    #     lambdas_sorted[i] = w[Loss == Loss_desce[0,i]]
+    #
 
-    w_desce = w[index_w]
+    w_desce = w[index_w].T
     #We look for i_star: the largest value s.t. sum(w_i, i=1,..,i_star)<=1-alpha
     # i = 1
     # while np.sum(w_desce[0,0:i]) <= 1-alpha:
@@ -73,8 +73,8 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
     eval, evect = np.linalg.eig(yearlyCovariance)
 
     #order eigenvalues in descending way
-    eval_desce = np.sort(eval)[::-1]
-    eval_index = np.argsort(eval)[::-1]
+    eval_desce = np.sort(eval).T[::-1]
+    eval_index = np.argsort(eval).T[::-1]
     #reordering the eigenvectors
     evect=evect[:,eval_index]
     yearlyMeanReturns=yearlyMeanReturns[eval_index]
