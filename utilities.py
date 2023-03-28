@@ -148,10 +148,7 @@ def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike,
 
     d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
             volatility * np.sqrt(timeToMaturityInYears))
-    d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
-
-    #delta_put = np.exp(-rate * timeToMaturityInYears) * (1 - norm.cdf(-d2)) - np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
-    delta2=np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
+    delta_put=-np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
 
     Loss = -numberOfShares * S_new. * x - delta * S_new. * x * numberOfPuts;
     % VaR

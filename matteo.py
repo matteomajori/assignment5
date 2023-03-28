@@ -146,4 +146,14 @@ riskMeasureTimeIntervalInYears=10/256
 NumberOfDaysPerYears=256
 VaR = FullMonteCarloVaR(returns3, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility,
                         timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha,NumberOfDaysPerYears)
-print(VaR)
+print('FullMCVar=',VaR_FullMC)
+
+#
+VaR_deltaNorm = DeltaNormalVaR(returns2, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears)
+print('VaR_deltaNorm=',VaR_deltaNorm)
+
+
+## 3. Case study: Pricing in presence of counterparty risk
+Notional=50*10**6
+volatility= 25/100
+
