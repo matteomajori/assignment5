@@ -165,7 +165,7 @@ volatility= 25/100
 SurvProbOnCliquet=np.array([0.99501246882793,0.988947643459277,0.982200758595402,0.975067029599282,0.968068421415452])
 rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659033079144,0.028120109979533])
 
-#discounts=np.array([1,discounts[9],discounts[12:15]])
+discounts=np.array([1,discounts[9],discounts[12:15]])
 #SurvProbOnCliquet=pd.read_csv('SurvProbOnCliquet.csv')
 #survProbOnCliquet=SurvProbOnCliquet['SurvProbOnCliquet']
 cliquet_price = CliquetPrice(volatility,Notional,SurvProbOnCliquet,discounts,rates)

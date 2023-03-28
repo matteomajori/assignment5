@@ -131,7 +131,8 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
     # compute put and call price at next step
     F = stockPrice_new * np.exp((rate - dividend) * timeToMaturityInYears)
     #call_price_new = (F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
-    put_price_new = np.exp(-rate * timeToMaturityInYears)* (-F * norm.cdf(-d1) + strike * norm.cdf(-d2))
+    call_price = CallPrice(rate, stockPrice_new, strike, dividend, volatility, timeToMaturityInYears)
+    put_price_new = call_price - np.exp(-rate * timeToMaturityInYears) * (F-strike)
     # Loss using MonteCarlo
     Loss = numberOfPuts * (-put_price_new + put_price) + numberOfShares * (-stockPrice_new + stockPrice)
     # compute VaR
