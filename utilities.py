@@ -101,8 +101,8 @@ def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeas
     #l=np.percentile(returns,(1-alpha)*100) #lower quantile
     l = np.quantile(returns, (1 - alpha)) #lower quantile
 
-    sVaR = portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
-    VaR = np.sqrt(np.sum(np.dot(sVaR,C)*sVaR))*portfolioValue
+    sVaR = portfolioValue* portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
+    VaR = np.sqrt(np.sum(np.dot(sVaR,C)*sVaR)) #*portfolioValue
 
     return VaR
 
@@ -114,24 +114,49 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
             volatility * np.sqrt(timeToMaturityInYears))
     d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
     F=stockPrice * np.exp((rate -dividend) * timeToMaturityInYears)
-    call_price =(F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
-    put_price = call_price - np.exp(-rate * timeToMaturityInYears) * (F-strike)
+    #call_price =(F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
+    #call2 = np.exp(-rate * timeToMaturityInYears) * (F * norm.cdf(-d1) - strike * norm.cdf(-d2))
+    #put_price = call_price - np.exp(-rate * timeToMaturityInYears) * (F-strike)
+    put_price=np.exp(-rate * timeToMaturityInYears)* (-F * norm.cdf(-d1) + strike * norm.cdf(-d2))
     # Random indexes: to check
-    n = np.size(logReturns)
-    Rand_simulation = np.random.randint(1, n, M)
-    rand_returns = logReturns[Rand_simulation]
+    n = len(logReturns.T)
+    rand_simulation = np.random.randint(1, n, M)
+    rand_returns = logReturns[rand_simulation]
+    #oppure
+    #mean=mean(logReturns.T)
+    #stdev = np.sqrt(np.cov(returns))
+    #rand_returns = mean+stdev*rand_simulation
     stockPrice_new = stockPrice * np.exp(rand_returns)
     # compute put and call price at next step
-    #call_price_new = stockPrice_new * norm.cdf(d1) - strike * np.exp(-rate * timeToMaturityInYears) * norm.cdf(d2)
-    #put_price_new = strike * np.exp(-rate * timeToMaturityInYears) - stockPrice_new * call_price_new
     F = stockPrice_new * np.exp((rate - dividend) * timeToMaturityInYears)
-    call_price_new = (F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
-    put_price_new = call_price - np.exp(-rate * timeToMaturityInYears) * (F - strike)
+    #call_price_new = (F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
+    put_price_new = np.exp(-rate * timeToMaturityInYears)* (-F * norm.cdf(-d1) + strike * norm.cdf(-d2))
     # Loss using MonteCarlo
     Loss = numberOfPuts * (-put_price_new + put_price) + numberOfShares * (-stockPrice_new + stockPrice)
     # compute VaR
     # the delta should be in days?
-    VaR = (riskMeasureTimeIntervalInYears * np.percentile(Loss, 100 * alpha))
+    delta=riskMeasureTimeIntervalInYears*NumberOfDaysPerYears
+    VaR = (delta * np.percentile(Loss, 100 * alpha))
+    return VaR
+
+def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
+                     volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
+    M = 10 ** 6
+    n = len(logReturns)
+    Rand_simulation = np.random.randint(1, n, M)
+    rand_returns = logReturns[Rand_simulation]
+
+    d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
+            volatility * np.sqrt(timeToMaturityInYears))
+    d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
+
+    #delta_put = np.exp(-rate * timeToMaturityInYears) * (1 - norm.cdf(-d2)) - np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
+    delta2=np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
+
+    Loss = -numberOfShares * S_new. * x - delta * S_new. * x * numberOfPuts;
+    % VaR
+    VaR = riskMeasureTimeIntervalInDays * prctile(Loss, 100 * alpha);
+
     return VaR
 
 #ciao
@@ -148,6 +173,7 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
 
 
 #VaR = FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha,NumberOfDaysPerYears)
+
 
 
 #VaR = DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears)

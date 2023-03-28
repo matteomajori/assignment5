@@ -71,7 +71,7 @@ print('VaR_check1a=', VaR_check1a)
 
 #Point B)
 #Portfolio with: Adidas, Airbus, BBVA, BMW and Schneider
-selected_columns1b=['AD.AS','AIR.PA','BBVA.MC','BMWG.DE','SCHN.PA']
+selected_columns1b=['ADSGn.DE','AIR.PA','BBVA.MC','BMWG.DE','SCHN.PA']
 df1b=np.array(df_3y[selected_columns1b]).T #matrix with 5 rows (one for each company), with daily value on the columns
 returns1b = np.log(df1b[:, 1:]/df1b[:, 0:-1])
 lambd = 0.97
@@ -142,7 +142,7 @@ numberOfShares=notional_2/stockPrice
 numberOfPuts=numberOfShares
 rate=2.391334809477566/100
 timeToMaturityInYears=0.175342465753425 #yearfrac('31-Gen-2023','05-Apr-2023',3)
-riskMeasureTimeIntervalInYears=1
+riskMeasureTimeIntervalInYears=10/256
 NumberOfDaysPerYears=256
 VaR = FullMonteCarloVaR(returns3, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility,
                         timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha,NumberOfDaysPerYears)
