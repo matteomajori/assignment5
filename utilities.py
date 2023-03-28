@@ -1,3 +1,6 @@
+import random
+
+import numpy.random
 from DateTime import DateTime
 #from pandas import pd
 import math as mt
@@ -107,14 +110,15 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
                           timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
     M = 10 ** 6
     # compute d1,d2
-    d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
-            volatility * np.sqrt(timeToMaturityInYears))
-    d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
+    #d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
+     #       volatility * np.sqrt(timeToMaturityInYears))
+    #d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
     F=stockPrice * np.exp((rate -dividend) * timeToMaturityInYears)
     #call_price =(F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
     #call2 = np.exp(-rate * timeToMaturityInYears) * (F * norm.cdf(-d1) - strike * norm.cdf(-d2))
-    #put_price = call_price - np.exp(-rate * timeToMaturityInYears) * (F-strike)
-    put_price=np.exp(-rate * timeToMaturityInYears)* (-F * norm.cdf(-d1) + strike * norm.cdf(-d2))
+    call_price=CallPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears)
+    put_price = call_price - np.exp(-rate * timeToMaturityInYears) * (F-strike)
+    #put_price=np.exp(-rate * timeToMaturityInYears)* (-F * norm.cdf(-d1) + strike * norm.cdf(-d2))
     # Random indexes: to check
     n = len(logReturns.T)
     rand_simulation = np.random.randint(1, n, M)
@@ -147,11 +151,67 @@ def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike,
             volatility * np.sqrt(timeToMaturityInYears))
     delta_put=-np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
 
-    Loss = -numberOfShares * S_new. * x - delta * S_new. * x * numberOfPuts;
-    % VaR
-    VaR = riskMeasureTimeIntervalInDays * prctile(Loss, 100 * alpha);
-
+    stockPrice_new = stockPrice * np.exp(rand_returns)
+    sensitivities = numberOfShares * stockPrice_new + delta_put * stockPrice_new  * numberOfPuts
+    Loss = -sensitivities* rand_returns
+    #VaR
+    delta = riskMeasureTimeIntervalInYears * NumberOfDaysPerYears
+    VaR = (delta * np.percentile(Loss, 100 * alpha))
     return VaR
+
+def CallPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears):
+    d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
+            volatility * np.sqrt(timeToMaturityInYears))
+    d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
+    F=stockPrice * np.exp((rate -dividend) * timeToMaturityInYears)
+
+    price = np.exp(-rate * timeToMaturityInYears) * (F * norm.cdf(-d1) - strike * norm.cdf(-d2))
+    return price
+
+def CliquetPrice(volatility,StockPrice,SurvProb,discounts,rates):
+    Cliquet_price_riskfree=0
+    Cliquet_price = 0
+    #take the first rate
+    rate1=rates[0]
+
+    #Cliquet option is like a call, so we compute its risk-free price as the price of a call
+    Cliquet_price_riskfree=CallPrice(rate1,StockPrice,StockPrice,0,volatility,1)
+
+    #considering counterparty risk
+    Cliquet_price=SurvProb[0]*Cliquet_price_riskfree
+    n = range(1,len(discounts) )
+
+    for i in n :
+        Cliquet_price_year=CallPrice(rates[i], StockPrice, StockPrice, 0, volatility,1)
+        Cliquet_price_riskfree=Cliquet_price_riskfree+Cliquet_price_year
+        Cliquet_price=CliquetPrice+Cliquet_price_year*SurvProb[i]
+    return Cliquet_price_riskfree, Cliquet_price
+
+
+def CliquetPrice_Bank(volatility,StockPrice,SurvProb,discounts,rates):
+
+    M=10**4
+    np.random.seed(50)
+    u=np.random.standard_normal(M)
+    t=[1,2,3,4]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#def Delta_GammaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
+                     #volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
+
+
 
 #ciao
 #samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
