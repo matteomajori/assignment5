@@ -199,6 +199,13 @@ def CliquetPrice_Bank(volatility,StockPrice,SurvProb,discounts,rates):
 
 
 
+def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recovery):
+    np.random.randint(0, n, size=M)
+
+
+
+
+
 
 
 
