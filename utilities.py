@@ -7,9 +7,6 @@ import scipy as sc
 from scipy.stats import norm
 import pandas as pd
 
-def printer(x):
-    print(x)
-
 ##point 0
 def AnalyticalNormalMeasures(alpha, weights, portfolioValue, riskMeasureTimeIntervalInDay, returns):
 

@@ -154,6 +154,7 @@ print('VaR_deltaNorm=',VaR_deltaNorm)
 
 
 ## 3. Case study: Pricing in presence of counterparty risk
+#Pricing the Cliquet option
 Notional=50*10**6
 volatility= 25/100
 
