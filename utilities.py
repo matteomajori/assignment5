@@ -185,7 +185,7 @@ def CliquetPrice(volatility,StockPrice,SurvProb,discounts,rates):
     for i in n :
         Cliquet_price_year=CallPrice(rates[i], StockPrice, StockPrice, 0, volatility,1)
         Cliquet_price_riskfree=Cliquet_price_riskfree+Cliquet_price_year
-        Cliquet_price=CliquetPrice+Cliquet_price_year*SurvProb[i]
+        Cliquet_price=Cliquet_price_riskfree+Cliquet_price_year*SurvProb[i]
     return Cliquet_price_riskfree, Cliquet_price
 
 

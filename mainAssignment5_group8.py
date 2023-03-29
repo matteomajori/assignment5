@@ -23,7 +23,6 @@ df.fillna(axis=0,method='ffill',inplace=True)
 from DateTime import DateTime
 df_3y=df[df['Date']<='2019-03-20']
 df_3y=df_3y[df_3y['Date']>='2016-03-21']
-
 #matrix with 4 rows (one for each company), with daily value on the columns
 #Ptf with Adidas, Allianz, Munich Re and L’Oréal
 selected_columns0=['ADSGn.DE','ALVG.DE','MUVGn.DE','OREP.PA']
@@ -159,13 +158,14 @@ print('VaR_deltaNorm=',VaR_deltaNorm)
 
 ## 3. Case study: Pricing in presence of counterparty risk
 #Pricing the Cliquet option
-Notional=50*10**6
+StockPrice=df['ISP.MI'].loc['2023-02-02'] #2.455
 volatility= 25/100
 
-SurvProbOnCliquet=np.array([0.99501246882793,0.988947643459277,0.982200758595402,0.975067029599282,0.968068421415452])
-rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659033079144,0.028120109979533])
-
-#discounts=np.array([1,discounts[9],discounts[12:15]])
+SurvProbOnCliquet=np.array([1,0.99501246882793,0.988947643459277,0.982200758595402,0.975067029599282])#,0.968068421415452
+rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659033079144])#,0.028120109979533])
+firsttwodiscounts=np.array([1,0.968924542714243])
+lastthreediscounts=np.array(discounts)[12:15]
+discounts=np.concatenate((firsttwodiscounts,lastthreediscounts))
 #SurvProbOnCliquet=pd.read_csv('SurvProbOnCliquet.csv')
 #survProbOnCliquet=SurvProbOnCliquet['SurvProbOnCliquet']
-cliquet_price = CliquetPrice(volatility,Notional,SurvProbOnCliquet,discounts,rates)
+cliquet_price, cliquet_riskfree_price = CliquetPrice(volatility,StockPrice,SurvProbOnCliquet,discounts,rates)
