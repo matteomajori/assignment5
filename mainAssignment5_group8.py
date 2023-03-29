@@ -97,7 +97,7 @@ returns1c=np.log(df1c[:,1:]/df1c[:,0:-1])
 yearlyMeanReturns=np.zeros([3,20])
 
 #metodo yearlyMeanReturns vettore 20x1
-yearlyMeanReturns=returns1c.mean(1)*256
+yearlyMeanReturns=returns1c.mean(1)*256 #
 
 
 #calcolo portfoliovalue
@@ -109,7 +109,7 @@ yearlyCovariance=np.zeros([20,20])
 yearlyCovariance=np.cov(returns1c)*256
 
 weights1c= 1/20*np.ones(20)  #equally weighted portfolio
-H=10
+H=10/256
 numberOfPrincipalComponents=6
 # numberOfPrincipalComponents=0
 n=range(1,7)

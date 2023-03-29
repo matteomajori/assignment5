@@ -197,8 +197,6 @@ def CliquetPrice_Bank(volatility,StockPrice,SurvProb,discounts,rates):
     t=[1,2,3,4]
 
 
-
-
 def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recovery):
     M = 10 ** 6
     u = np.random.standard_normal(M,4)
@@ -216,6 +214,6 @@ def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recove
     '.*discounts.*...
     (survprobs(1: end - 1)-survprobs(2: end)));
 
-    Cliquet_riskfree = S0 * sum((mean(positive_parts)'.*discounts));
+    Cliquet_riskfree = np.sum((np.mean(payoff).T*discounts))
 
-    return
+    return Cliquet, Cliquet_riskfree
