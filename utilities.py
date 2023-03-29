@@ -169,24 +169,6 @@ def CallPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears):
     price = np.exp(-rate * timeToMaturityInYears) * (F * norm.cdf(-d1) - strike * norm.cdf(-d2))
     return price
 
-def CliquetPrice(volatility,StockPrice,SurvProb,discounts,rates):
-    Cliquet_price_riskfree=0
-    Cliquet_price = 0
-    #take the first rate
-    rate1=rates[0]
-
-    #Cliquet option is like a call, so we compute its risk-free price as the price of a call
-    Cliquet_price_riskfree=CallPrice(rate1,StockPrice,StockPrice,0,volatility,1)
-
-    #considering counterparty risk
-    Cliquet_price=SurvProb[0]*Cliquet_price_riskfree
-    n = range(1,len(discounts) )
-
-    for i in n :
-        Cliquet_price_year=CallPrice(rates[i], StockPrice, StockPrice, 0, volatility,1)
-        Cliquet_price_riskfree=Cliquet_price_riskfree+Cliquet_price_year
-        Cliquet_price=Cliquet_price_riskfree+Cliquet_price_year*SurvProb[i]
-    return Cliquet_price_riskfree, Cliquet_price
 
 
 def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recovery):
