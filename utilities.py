@@ -210,10 +210,7 @@ def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recove
         payoff = np.maximum(s[:, i] - s[:, i-1], 0)
 
 
-    Cliquet = np.sum((np.mean(payoff)*discounts).*survprobs(2:end))+...
-    recovery * S0 * sum(mean(positive_parts)
-    '.*discounts.*...
-    (survprobs(1: end - 1)-survprobs(2: end)));
+    Cliquet = np.sum((np.mean(payoff)*discounts)*SurvProb[1:])+recovery * np.sum(np.mean(payoff).T*discounts*(SurvProb[:- 1]-SurvProb[1:]))
 
     Cliquet_riskfree = np.sum((np.mean(payoff).T*discounts))
 
