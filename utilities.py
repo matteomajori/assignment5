@@ -101,7 +101,6 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
                           timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
     M = 10 ** 6
     put_price = PutPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears)
-      #put_price=np.exp(-rate * timeToMaturityInYears)* (-F * norm.cdf(-d1) + strike * norm.cdf(-d2))
     # Random indexes: to check
     n = len(logReturns.T)
     rand_simulation = np.random.randint(1, n, M)
@@ -112,16 +111,13 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
     #rand_returns = mean+stdev*rand_simulation
 
     stockPrice_new = stockPrice * np.exp(rand_returns) #stockPrice_new = stockPrice * np.exp(logReturns)
-
-    #call_price_new = (F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
     put_price_new = PutPrice(rate, stockPrice_new, strike, dividend, volatility, timeToMaturityInYears)
     # Loss using MonteCarlo
     Loss = numberOfPuts * (-put_price_new + put_price) + numberOfShares * (-stockPrice_new + stockPrice)
     # compute VaR
-
     # we call time lag the delta of the VaR
     time_lag=riskMeasureTimeIntervalInYears*NumberOfDaysPerYears
-    VaR = (time_lag * np.quantile(Loss, alpha))
+    VaR = np.sqrt(time_lag) * np.quantile(Loss, alpha)
     return VaR
 
 def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
@@ -141,7 +137,7 @@ def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike,
     #VaR
     # we call time lag the delta of the VaR
     time_lag = int(riskMeasureTimeIntervalInYears * NumberOfDaysPerYears)
-    VaR = (time_lag* np.percentile(Loss, 100 * alpha))
+    VaR = np.sqrt(time_lag)* np.percentile(Loss, 100 * alpha)
     return VaR
 
 def DeltaGammaNormal(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
@@ -164,7 +160,7 @@ def DeltaGammaNormal(logReturns, numberOfShares, numberOfPuts, stockPrice, strik
     Loss = -delta_sensitivities* rand_returns - (gamma_sensitivities * rand_returns**2 )/2
     # we call time lag the delta of the VaR
     time_lag =int(riskMeasureTimeIntervalInYears * NumberOfDaysPerYears)
-    VaR = (time_lag * np.percentile(Loss, 100 * alpha))
+    VaR = np.sqrt(time_lag) * np.percentile(Loss, 100 * alpha)
     return VaR
 
 
@@ -179,7 +175,6 @@ def PutPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears):
     return price
 
 
-
 def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recovery):
     M = 10 ** 6
     u = np.random.standard_normal((M,4))
@@ -191,7 +186,6 @@ def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recove
     for i in range(1,4):
         s[:, i] = s[:,i-1] * np.exp(rates[i] - 0.5 * volatility ** 2 + volatility * u[:, i])
         payoff = np.maximum(s[:, i] - s[:, i-1], 0)
-
 
     Cliquet = np.sum((np.mean(payoff)*discounts)*SurvProb[1:])+recovery * np.sum(np.mean(payoff).T*discounts*(SurvProb[:- 1]-SurvProb[1:]))
 
