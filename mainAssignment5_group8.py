@@ -64,6 +64,7 @@ print('VaR_check1a=', VaR_check1a)
 
 
 #Point B)
+portfolioValue=10**7
 #Portfolio with: Adidas, Airbus, BBVA, BMW and Schneider
 selected_columns1b=['ADSGn.DE','AIR.PA','BBVA.MC','BMWG.DE','SCHN.PA']
 df1b=np.array(df_3y[selected_columns1b]).T #matrix with 5 rows (one for each company), with daily value on the columns
