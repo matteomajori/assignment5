@@ -110,7 +110,7 @@ for i in n:
 print('VaR1c=', VaR1c, '\n' ,'ES1c=', ES1c)
 
 #Plausibility Check
-VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
+VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, 10)
 print('VaR_check1c=', VaR_check1c)
 
 ##2. Case study:

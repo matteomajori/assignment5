@@ -72,8 +72,8 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
     yearlyMeanReturns=yearlyMeanReturns[eval_index]
 
     #reduced form portfolio
-    mu_hat =np.dot(evect , yearlyMeanReturns)
-    w_hat = np.dot(evect , weights.T)
+    mu_hat =np.dot(evect.T , yearlyMeanReturns.T)
+    w_hat = np.dot(evect.T , weights.T)
 
     #computing mean and variance of the reduced ptf up to K
     k=numberOfPrincipalComponents
