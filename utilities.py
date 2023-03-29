@@ -8,6 +8,7 @@ import numpy as np
 from numpy.linalg import eig
 import scipy as sc
 from scipy.stats import norm
+import math
 import pandas as pd
 
 ##point 0
@@ -43,9 +44,10 @@ def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureT
     n=len(returns.T)
     #normalized factor
     C=(1-lambd)/(1-lambd**n)
-    #weights exponentially decreasing
-    w = C*lambd**(np.arange(0, n, 1))
-
+    #weights exponentially decreasing in the past
+    #w = C*lambd**(np.arange(0, n, 1))
+    w = C*lambd**(np.arange(n-1, -1, -1))
+    #loss of the portfolio
     Loss = -portfolioValue*np.dot(returns.T,weights.T).T
     Loss_desce = np.sort(Loss).T[::-1].T
     index_w = np.argsort(Loss).T[::-1]
@@ -61,7 +63,7 @@ def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureT
     i_star = np.where(np.cumsum(w_desce) <= 1 - alpha)[0][-1]+1
 
     VaR = riskMeasureTimeIntervalInDay*Loss_desce[0,i_star]
-    ES = riskMeasureTimeIntervalInDay*(np.sum(w_desce[0,1:i_star].T*Loss_desce[0,1:i_star])/np.sum(w_desce[0,1:i_star]))
+    ES = riskMeasureTimeIntervalInDay*(np.sum(w_desce[0,0:i_star]*Loss_desce[0,0:i_star])/np.sum(w_desce[0,0:i_star]))
     return VaR, ES
 ##c
 def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, numberOfPrincipalComponents, portfolioValue):
@@ -83,7 +85,6 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
     Mean_reduced = -np.sum(mu_hat[0:k]*w_hat[0: k]) *H  #mu_red * delta
     Sigma_reduced = np.sqrt(np.sum(eval_desce[0:k]*np.square(w_hat[0:k]))*H) #sqrt(sigma_red*delta)
 
-
     VaR = portfolioValue * (Mean_reduced+Sigma_reduced * norm.ppf(alpha)) #mu_red * delta +  sigma_red * sqrt(delta) * VaR_std
     ES = portfolioValue * (Mean_reduced+Sigma_reduced*  norm.pdf(norm.ppf(alpha)) / (1 - alpha)) #mu_red * delta +   sqrt(sigma_red *delta) * ES_std
 
@@ -91,17 +92,16 @@ def PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights, H, alpha, nu
 
 def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeasureTimeIntervalInDay):
     # estimation of the order of magnitude of portfolio VaR
-    C = np.corrcoef(returns.T,rowvar=False) #correlation matrix
-    #u=np.percentile(returns,alpha*100) #upper quantile
-    u = np.quantile(returns, alpha) #upper quantile
-    #l=np.percentile(returns,(1-alpha)*100) #lower quantile
-    l = np.quantile(returns, (1 - alpha)) #lower quantile
+    C = riskMeasureTimeIntervalInDay*np.corrcoef(returns.T,rowvar=False) #correlation matrix
 
-    sVaR = portfolioValue* portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
+    u = np.quantile(returns, alpha, axis=1) #upper quantile along axis 1 (i.e row-wise)
+    l = np.quantile(returns, (1 - alpha), axis=1) #lower quantile along axis 1 (i.e row-wise)
+    sens=-portfolioValue * portfolioWeights
+    #sVaR = portfolioValue* portfolioWeights * (abs(l) + abs(u))/ 2  #signed-VaR
+    sVaR = sens * (abs(l) + abs(u))/ 2  #signed-VaR
     VaR = np.sqrt(np.sum(np.dot(sVaR,C)*sVaR)) #*portfolioValue
 
     return VaR
-
 def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend, volatility,
                           timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
     M = 10 ** 6
