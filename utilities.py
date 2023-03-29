@@ -49,17 +49,12 @@ def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureT
     w = C*lambd**(np.arange(n-1, -1, -1))
     #loss of the portfolio
     Loss = -portfolioValue*np.dot(returns.T,weights.T).T
+    #we sort the loss in decreasing order
     Loss_desce = np.sort(Loss).T[::-1].T
+    #find the indexes of the descending loss
     index_w = np.argsort(Loss).T[::-1]
-
-    # lambdas_sorted=np.zeros((len(Loss_desce),1))
-    # for i in range(len(Loss_desce)):
-    #     # we order the weights of the WHS following the order of the losses
-    #     lambdas_sorted[i] = w[Loss == Loss_desce[0,i]]
-    #
-
     w_desce = w[index_w].T
-    #We look for i_star: the largest value s.t. sum(w_i, i=1,..,i_star)<=1-alpha
+    #We look for i_star: the largest value s.t. sum(w_i, i=1,..,i_star)<=1-alpsha
     i_star = np.where(np.cumsum(w_desce) <= 1 - alpha)[0][-1]+1
 
     VaR = riskMeasureTimeIntervalInDay*Loss_desce[0,i_star]
