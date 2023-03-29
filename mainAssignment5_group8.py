@@ -2,14 +2,16 @@
 import math
 import numpy as np
 import pandas as pd
-from utilities import AnalyticalNormalMeasures
-from utilities import HSMeasurements
-from utilities import WHSMeasurements
-from utilities import PrincCompAnalysis
-from utilities import plausibilityCheck
-from utilities import FullMonteCarloVaR
-from utilities import DeltaNormalVaR
-from utilities import CliquetPrice
+# from utilities import AnalyticalNormalMeasures
+# from utilities import HSMeasurements
+# from utilities import WHSMeasurements
+# from utilities import PrincCompAnalysis
+# from utilities import plausibilityCheck
+# from utilities import FullMonteCarloVaR
+# from utilities import DeltaNormalVaR
+# from utilities import DeltaGammaNormal
+# from utilities import CliquetPrice
+from utilities import *
 import random
 
 
@@ -163,9 +165,7 @@ volatility= 25/100
 
 SurvProbOnCliquet=np.array([1,0.99501246882793,0.988947643459277,0.982200758595402,0.975067029599282])#,0.968068421415452
 rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659033079144])#,0.028120109979533])
-firsttwodiscounts=np.array([1,0.968924542714243])
-lastthreediscounts=np.array(discounts)[12:15]
-discounts=np.concatenate((firsttwodiscounts,lastthreediscounts))
-#SurvProbOnCliquet=pd.read_csv('SurvProbOnCliquet.csv')
-#survProbOnCliquet=SurvProbOnCliquet['SurvProbOnCliquet']
-cliquet_price, cliquet_riskfree_price = CliquetPrice(volatility,StockPrice,SurvProbOnCliquet,discounts,rates)
+discounts=np.concatenate((np.array([0.968924542714243]),np.array(discounts)[12:15]))
+
+cliquet_price, cliquet_riskfree_price = CliquetPrice_numerical(volatility,StockPrice,SurvProbOnCliquet,discounts,rates,recovery)
+print('cliquet_price',cliquet_price,'cliquet_riskfree_price',cliquet_riskfree_price)

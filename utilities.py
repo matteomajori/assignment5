@@ -189,20 +189,12 @@ def CliquetPrice(volatility,StockPrice,SurvProb,discounts,rates):
     return Cliquet_price_riskfree, Cliquet_price
 
 
-def CliquetPrice_Bank(volatility,StockPrice,SurvProb,discounts,rates):
-
-    M=10**4
-    np.random.seed(50)
-    u=np.random.standard_normal(M)
-    t=[1,2,3,4]
-
-
 def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recovery):
     M = 10 ** 6
-    u = np.random.standard_normal(M,4)
-    s=np.zeros(M,4)
-    s[:,0]= StockPrice * np.exp(rates[0] -0.5 * volatility**2 + volatility*u[:,0])
-    payoff=np.zeros(M,4)
+    u = np.random.standard_normal((M,4))
+    s=np.zeros((M,4))
+    s[:,0]= StockPrice *  np.exp(rates[0] -0.5 * volatility**2 + volatility*u[:,0])
+    payoff=np.zeros((M,4))
     payoff=np.maximum(s[:,0] - StockPrice,0)
     for i in range(1,4):
         s[:, i] = s[:,i-1] * np.exp(rates[i] - 0.5 * volatility ** 2 + volatility * u[:, i])
