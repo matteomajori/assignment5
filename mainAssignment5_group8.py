@@ -154,9 +154,12 @@ print('VaR_deltaGammaNorm=',VaR_DeltaGammaNorm)
 StockPrice=df['ISP.MI'].loc['2023-02-02'] #2.455
 volatility= 25/100
 recovery=40/100
+notional=50*10**6
 SurvProbOnCliquet=np.array([1,0.99501246882793,0.988947643459277,0.982200758595402,0.975067029599282])#,0.968068421415452
 rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659033079144])#,0.028120109979533])
 discounts=np.concatenate((np.array([0.968924542714243]),np.array(discounts)[12:15]))
 
 cliquet_price, cliquet_riskfree_price = CliquetPrice_numerical(volatility,StockPrice,SurvProbOnCliquet,discounts,rates,recovery)
+cliquet_price=cliquet_price*notional
+cliquet_riskfree_price=cliquet_riskfree_price*notional
 print('cliquet_price',cliquet_price,'cliquet_riskfree_price',cliquet_riskfree_price)

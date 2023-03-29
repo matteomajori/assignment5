@@ -121,7 +121,7 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
 
     # we call time lag the delta of the VaR
     time_lag=riskMeasureTimeIntervalInYears*NumberOfDaysPerYears
-    VaR = (time_lag * np.percentile(Loss, 100 * alpha))
+    VaR = (time_lag * np.quantile(Loss, alpha))
     return VaR
 
 def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
