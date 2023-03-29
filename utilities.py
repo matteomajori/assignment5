@@ -58,10 +58,6 @@ def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureT
 
     w_desce = w[index_w].T
     #We look for i_star: the largest value s.t. sum(w_i, i=1,..,i_star)<=1-alpha
-    # i = 1
-    # while np.sum(w_desce[0,0:i]) <= 1-alpha:
-    #     i=i+1
-    # i_star=i-1
     i_star = np.where(np.cumsum(w_desce) <= 1 - alpha)[0][-1]+1
 
     VaR = riskMeasureTimeIntervalInDay*Loss_desce[0,i_star]

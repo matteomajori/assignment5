@@ -2,19 +2,8 @@
 import math
 import numpy as np
 import pandas as pd
-# from utilities import AnalyticalNormalMeasures
-# from utilities import HSMeasurements
-# from utilities import WHSMeasurements
-# from utilities import PrincCompAnalysis
-# from utilities import plausibilityCheck
-# from utilities import FullMonteCarloVaR
-# from utilities import DeltaNormalVaR
-# from utilities import DeltaGammaNormal
-# from utilities import CliquetPrice
 from utilities import *
 import random
-
-
 #random.seed(134)
 
 ##0. Exercise. Variance-covariance method for VaR & ES in linear portfolio: a simple example of data mining
@@ -65,7 +54,7 @@ print('Var1a=',Var1a,'ES1a=',ES1a)
 M=200
 n=np.size(returns1a)/4
 np.random.seed(50)
-Rand_simulation=np.random.randint(0,3,size=M)
+Rand_simulation=np.random.randint(0,n,size=M)
 returns1s=returns1a[:,Rand_simulation]
 VaR1a2,ES1a2=HSMeasurements(returns1s,alpha,weights1a,portfolioValue,riskMeasureTimeIntervalInDay)
 print('VaR1a2=',VaR1a2,'ES1a2=',ES1a2)
@@ -119,7 +108,7 @@ VaR1c=np.zeros((len(n),1))
 for i in n:
     VaR1c[i-1],ES1c[i-1]  = PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights1c, H, alpha, i , portfolioValue)
 
-print('VaR1c=', VaR1c, 'ES1c=', ES1c)
+print('VaR1c=', VaR1c, '\n' ,'ES1c=', ES1c)
 
 #Plausibility Check
 VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, riskMeasureTimeIntervalInDay)
