@@ -1,3 +1,6 @@
+import random
+
+import numpy.random
 from DateTime import DateTime
 #from pandas import pd
 import math as mt
@@ -6,9 +9,6 @@ from numpy.linalg import eig
 import scipy as sc
 from scipy.stats import norm
 import pandas as pd
-
-def printer(x):
-    print(x)
 
 ##point 0
 def AnalyticalNormalMeasures(alpha, weights, portfolioValue, riskMeasureTimeIntervalInDay, returns):
@@ -101,8 +101,8 @@ def plausibilityCheck(returns, portfolioWeights, alpha, portfolioValue, riskMeas
     #l=np.percentile(returns,(1-alpha)*100) #lower quantile
     l = np.quantile(returns, (1 - alpha)) #lower quantile
 
-    sVaR = portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
-    VaR = np.sqrt(np.sum(np.dot(sVaR,C)*sVaR))*portfolioValue
+    sVaR = portfolioValue* portfolioWeights * (abs(l) + abs(u)) / 2  #signed-VaR
+    VaR = np.sqrt(np.sum(np.dot(sVaR,C)*sVaR)) #*portfolioValue
 
     return VaR
 
@@ -110,31 +110,112 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
                           timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
     M = 10 ** 6
     # compute d1,d2
-    d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
-            volatility * np.sqrt(timeToMaturityInYears))
-    d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
+    #d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
+     #       volatility * np.sqrt(timeToMaturityInYears))
+    #d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
     F=stockPrice * np.exp((rate -dividend) * timeToMaturityInYears)
-    call_price =(F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
+    #call_price =(F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
+    #call2 = np.exp(-rate * timeToMaturityInYears) * (F * norm.cdf(-d1) - strike * norm.cdf(-d2))
+    call_price=CallPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears)
     put_price = call_price - np.exp(-rate * timeToMaturityInYears) * (F-strike)
+    #put_price=np.exp(-rate * timeToMaturityInYears)* (-F * norm.cdf(-d1) + strike * norm.cdf(-d2))
     # Random indexes: to check
-    n = np.size(logReturns)
-    Rand_simulation = np.random.randint(1, n, M)
-    rand_returns = logReturns[Rand_simulation]
+    n = len(logReturns.T)
+    rand_simulation = np.random.randint(1, n, M)
+    rand_returns = logReturns[rand_simulation]
+    #oppure
+    #mean=mean(logReturns.T)
+    #stdev = np.sqrt(np.cov(returns))
+    #rand_returns = mean+stdev*rand_simulation
     stockPrice_new = stockPrice * np.exp(rand_returns)
     # compute put and call price at next step
-    #call_price_new = stockPrice_new * norm.cdf(d1) - strike * np.exp(-rate * timeToMaturityInYears) * norm.cdf(d2)
-    #put_price_new = strike * np.exp(-rate * timeToMaturityInYears) - stockPrice_new * call_price_new
     F = stockPrice_new * np.exp((rate - dividend) * timeToMaturityInYears)
-    call_price_new = (F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
-    put_price_new = call_price - np.exp(-rate * timeToMaturityInYears) * (F - strike)
+    #call_price_new = (F * norm.cdf(d1) - strike * norm.cdf(d2)) * np.exp(-rate * timeToMaturityInYears)
+    call_price = CallPrice(rate, stockPrice_new, strike, dividend, volatility, timeToMaturityInYears)
+    put_price_new = call_price - np.exp(-rate * timeToMaturityInYears) * (F-strike)
     # Loss using MonteCarlo
     Loss = numberOfPuts * (-put_price_new + put_price) + numberOfShares * (-stockPrice_new + stockPrice)
     # compute VaR
     # the delta should be in days?
-    VaR = (riskMeasureTimeIntervalInYears * np.percentile(Loss, 100 * alpha))
+    delta=riskMeasureTimeIntervalInYears*NumberOfDaysPerYears
+    VaR = (delta * np.percentile(Loss, 100 * alpha))
     return VaR
 
+def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
+                     volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
+    M = 10 ** 6
+    n = len(logReturns)
+    Rand_simulation = np.random.randint(1, n, M)
+    rand_returns = logReturns[Rand_simulation]
 
-#samples = bootstrapStatistical(numberOfSamplesToBootstrap, returns)
+    d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
+            volatility * np.sqrt(timeToMaturityInYears))
+    delta_put=-np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
 
-#VaR = DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears)
+    stockPrice_new = stockPrice * np.exp(rand_returns)
+    sensitivities = numberOfShares * stockPrice_new + delta_put * stockPrice_new  * numberOfPuts
+    Loss = -sensitivities* rand_returns
+    #VaR
+    delta = riskMeasureTimeIntervalInYears * NumberOfDaysPerYears
+    VaR = (delta * np.percentile(Loss, 100 * alpha))
+    return VaR
+
+def CallPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears):
+    d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
+            volatility * np.sqrt(timeToMaturityInYears))
+    d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
+    F=stockPrice * np.exp((rate -dividend) * timeToMaturityInYears)
+
+    price = np.exp(-rate * timeToMaturityInYears) * (F * norm.cdf(-d1) - strike * norm.cdf(-d2))
+    return price
+
+def CliquetPrice(volatility,StockPrice,SurvProb,discounts,rates):
+    Cliquet_price_riskfree=0
+    Cliquet_price = 0
+    #take the first rate
+    rate1=rates[0]
+
+    #Cliquet option is like a call, so we compute its risk-free price as the price of a call
+    Cliquet_price_riskfree=CallPrice(rate1,StockPrice,StockPrice,0,volatility,1)
+
+    #considering counterparty risk
+    Cliquet_price=SurvProb[0]*Cliquet_price_riskfree
+    n = range(1,len(discounts) )
+
+    for i in n :
+        Cliquet_price_year=CallPrice(rates[i], StockPrice, StockPrice, 0, volatility,1)
+        Cliquet_price_riskfree=Cliquet_price_riskfree+Cliquet_price_year
+        Cliquet_price=CliquetPrice+Cliquet_price_year*SurvProb[i]
+    return Cliquet_price_riskfree, Cliquet_price
+
+
+def CliquetPrice_Bank(volatility,StockPrice,SurvProb,discounts,rates):
+
+    M=10**4
+    np.random.seed(50)
+    u=np.random.standard_normal(M)
+    t=[1,2,3,4]
+
+
+
+
+def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recovery):
+    M = 10 ** 6
+    u = np.random.standard_normal(M,4)
+    s=np.zeros(M,4)
+    s[:,0]= StockPrice * np.exp(rates[0] -0.5 * volatility**2 + volatility*u[:,0])
+    payoff=np.zeros(M,4)
+    payoff=np.maximum(s[:,0] - StockPrice,0)
+    for i in range(1,4):
+        s[:, i] = s[:,i-1] * np.exp(rates[i] - 0.5 * volatility ** 2 + volatility * u[:, i])
+        payoff = np.maximum(s[:, i] - s[:, i-1], 0)
+
+
+    Cliquet = np.sum((np.mean(payoff)*discounts).*survprobs(2:end))+...
+    recovery * S0 * sum(mean(positive_parts)
+    '.*discounts.*...
+    (survprobs(1: end - 1)-survprobs(2: end)));
+
+    Cliquet_riskfree = S0 * sum((mean(positive_parts)'.*discounts));
+
+    return
