@@ -153,16 +153,19 @@ VaR_FullMC = FullMonteCarloVaR(returns2, numberOfShares, numberOfPuts, stockPric
                         timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha,NumberOfDaysPerYears)
 print('FullMCVar=',VaR_FullMC)
 
-#
+#Delta normal method
 VaR_deltaNorm = DeltaNormalVaR(returns2, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears)
 print('VaR_deltaNorm=',VaR_deltaNorm)
-
+#DeltaGamma method
+VaR_DeltaGammaNorm=DeltaGammaNormal(returns2, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
+                     volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears)
+print('VaR_deltaGammaNorm=',VaR_DeltaGammaNorm)
 
 ## 3. Case study: Pricing in presence of counterparty risk
 #Pricing the Cliquet option
 StockPrice=df['ISP.MI'].loc['2023-02-02'] #2.455
 volatility= 25/100
-
+recovery=40/100
 SurvProbOnCliquet=np.array([1,0.99501246882793,0.988947643459277,0.982200758595402,0.975067029599282])#,0.968068421415452
 rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659033079144])#,0.028120109979533])
 discounts=np.concatenate((np.array([0.968924542714243]),np.array(discounts)[12:15]))
