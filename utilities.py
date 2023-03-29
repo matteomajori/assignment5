@@ -112,7 +112,8 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
     #rand_returns = mean+stdev*rand_simulation
 
     stockPrice_new = stockPrice * np.exp(rand_returns) #stockPrice_new = stockPrice * np.exp(logReturns)
-    put_price_new = PutPrice(rate, stockPrice_new, strike, dividend, volatility, timeToMaturityInYears)
+    timeToMat_New=timeToMaturityInYears-riskMeasureTimeIntervalInYears
+    put_price_new = PutPrice(rate, stockPrice_new, strike, dividend, volatility, timeToMat_New)
     # Loss using MonteCarlo
     Loss = numberOfPuts * (-put_price_new + put_price) + numberOfShares * (-stockPrice_new + stockPrice)
     # compute VaR
