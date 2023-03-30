@@ -143,15 +143,15 @@ def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike,
     Rand_simulation = np.random.randint(1, n, M)
     # select the corresponding returns
     rand_returns = logReturns[Rand_simulation]
+    timeToMat_New = timeToMaturityInYears - riskMeasureTimeIntervalInYears
+    d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMat_New) / (
+            volatility * np.sqrt(timeToMat_New))
 
-    d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
-            volatility * np.sqrt(timeToMaturityInYears))
-    delta_put=-np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
+    delta_put=-np.exp(-dividend * timeToMat_New) * norm.cdf(-d1)
 
     #compute the price of the stock at t + time_lag using the random set of returns
     stockPrice_new = stockPrice * np.exp(rand_returns)
-    sensitivities = numberOfShares * stockPrice_new + delta_put * stockPrice_new  * numberOfPuts
-    Loss = -sensitivities* rand_returns
+    Loss = -(numberOfShares + delta_put * numberOfPuts)*stockPrice_new* rand_returns
     #VaR
     # we call time lag the delta of the VaR
     time_lag = int(riskMeasureTimeIntervalInYears * NumberOfDaysPerYears)
