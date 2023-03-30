@@ -120,11 +120,7 @@ plt.title('PCA errors')
 plt.xlabel('Number of Principal Components')
 plt.ylabel('Error')
 plt.show()
-#fig.savefig('PCA errors.png')
-
-#Plausibility Check
-VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, 10)
-print('VaR_check1c=', VaR_check1c)
+fig.savefig('PCA errors.png')
 
 #Plausibility Check
 VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, 10)
