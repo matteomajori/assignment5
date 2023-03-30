@@ -13,6 +13,7 @@ import pandas as pd
 
 ##point 0
 def AnalyticalNormalMeasures(alpha, weights, portfolioValue, riskMeasureTimeIntervalInDay, returns):
+    #Computes VaR and ES using VarianceCovariance method
 
     #Covariance matrix
     Cov=riskMeasureTimeIntervalInDay*(np.cov(returns))
@@ -30,22 +31,25 @@ def AnalyticalNormalMeasures(alpha, weights, portfolioValue, riskMeasureTimeInte
 ##point 1
 ##a
 def HSMeasurements(returns, alpha, weights, portfolioValue, riskMeasureTimeIntervalInDay):
+    # Computes VaR and ES using Historical Simulation method
     #vector of losses
     Loss=-portfolioValue*np.dot(returns.T,weights.T)
     #Order them in descending order
     Loss_desce=np.sort(Loss)[::-1]
     n=len(Loss_desce)
+    #Compute VaR
     VaR = riskMeasureTimeIntervalInDay*Loss_desce[mt.floor(n*(1-alpha))]
+    #Compute ES
     ES = riskMeasureTimeIntervalInDay*np.mean(Loss_desce[0:mt.floor(n*(1-alpha))])
 
     return VaR,ES
 ##b
 def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureTimeIntervalInDay):
+    # Computes VaR and ES using Weighted Historical Simulation method
     n=len(returns.T)
     #normalized factor
     C=(1-lambd)/(1-lambd**n)
     #weights exponentially decreasing in the past
-    #w = C*lambd**(np.arange(0, n, 1))
     w = C*lambd**(np.arange(n-1, -1, -1))
     #loss of the portfolio
     Loss = -portfolioValue*np.dot(returns.T,weights.T).T
@@ -53,9 +57,11 @@ def WHSMeasurements(returns, alpha, lambd, weights, portfolioValue, riskMeasureT
     Loss_desce = np.sort(Loss).T[::-1].T
     #find the indexes of the descending loss
     index_w = np.argsort(Loss).T[::-1]
+    #order the weights with the correspondent loss
     w_desce = w[index_w].T
     #We look for i_star: the largest value s.t. sum(w_i, i=1,..,i_star)<=1-alpsha
     i_star = np.where(np.cumsum(w_desce) <= 1 - alpha)[0][-1]+1
+    
 
     VaR = riskMeasureTimeIntervalInDay*Loss_desce[0,i_star]
     ES = riskMeasureTimeIntervalInDay*(np.sum(w_desce[0,0:i_star]*Loss_desce[0,0:i_star])/np.sum(w_desce[0,0:i_star]))
