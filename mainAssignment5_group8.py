@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from utilities import *
 import random
+import matplotlib.pyplot as plt
 #random.seed(134)
 
 ##0. Exercise. Variance-covariance method for VaR & ES in linear portfolio: a simple example of data mining
@@ -101,13 +102,29 @@ yearlyCovariance=np.cov(returns1c)*256
 
 weights1c= 1/20*np.ones(20)  #equally weighted portfolio
 H=10/256
-n=range(1,7)
+n=range(1,21)
 ES1c=np.zeros((len(n),1))
 VaR1c=np.zeros((len(n),1))
 for i in n:
     VaR1c[i-1],ES1c[i-1]  = PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights1c, H, alpha, i , portfolioValue)
 
 print('VaR1c=', VaR1c, '\n' ,'ES1c=', ES1c)
+
+VaR1C_correct, ES1C_correct = AnalyticalNormalMeasures(alpha, weights1c, portfolioValue, 10, returns1c)
+err_VaR = abs((VaR1c - VaR1C_correct) / VaR1C_correct)
+err_ES = abs((ES1c - ES1C_correct) / ES1C_correct)
+fig=plt.figure()
+plt.plot( err_VaR)
+plt.plot( err_ES)
+plt.title('PCA errors')
+plt.xlabel('Number of Principal Components')
+plt.ylabel('Error')
+plt.show()
+#fig.savefig('PCA errors.png')
+
+#Plausibility Check
+VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, 10)
+print('VaR_check1c=', VaR_check1c)
 
 #Plausibility Check
 VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, 10)
