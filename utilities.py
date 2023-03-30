@@ -181,16 +181,20 @@ def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recove
     M = 10 ** 6
     u = np.random.standard_normal((M,4))
     s=np.zeros((M,4))
-    s[:,0]= StockPrice *  np.exp(rates[0] -0.5 * volatility**2 + volatility*u[:,0])
+    #s[:,0]= StockPrice *  np.exp(rates[0] -0.5 * volatility**2 + volatility*u[:,0])
     payoff=np.zeros((M,4))
-    payoff=np.maximum(s[:,0] - StockPrice,0)
+
     #compute S_ti and the payoff of the cliquet
-    for i in range(1,4):
-        s[:, i] = s[:,i-1] * np.exp(rates[i] - 0.5 * volatility ** 2 + volatility * u[:, i])
-        payoff = np.maximum(s[:, i] - s[:, i-1], 0)
+    u_cumsum=np.cumsum(u,axis=1)
+    s = StockPrice * np.exp((rates - 0.5 * volatility ** 2) * np.arange(1,5) + volatility * u_cumsum)# * np.sqrt( np.arange(1,5)))
+    payoff[:,0] = np.maximum(s[:, 0] - StockPrice, 0)
+    payoff[:,1:] = np.maximum(s[:, 1:] - s[:, :-1], 0)
+    #for i in range(1,4):
+      #  s[:, i] = s[:,i-1] * np.exp(rates[i] - 0.5 * volatility ** 2 + volatility * u[:, i])
+      #  payoff[:,i] = np.maximum(s[:, i] - s[:, i-1], 0)
 
-    Cliquet = np.sum((np.mean(payoff)*discounts)*SurvProb[1:])+recovery * np.sum(np.mean(payoff).T*discounts*(SurvProb[:- 1]-SurvProb[1:]))
+    Cliquet = np.sum((np.mean(payoff,axis=0)*discounts)*SurvProb[1:])   +recovery * np.sum(np.mean(payoff,axis=0)*discounts*(SurvProb[:- 1]-SurvProb[1:]))
 
-    Cliquet_riskfree = np.sum((np.mean(payoff).T*discounts))
+    Cliquet_riskfree = np.sum((np.mean(payoff,axis=0)*discounts))
 
     return Cliquet, Cliquet_riskfree
