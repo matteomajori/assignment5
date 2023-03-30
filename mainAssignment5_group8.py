@@ -5,7 +5,7 @@ import pandas as pd
 from utilities import *
 import random
 import matplotlib.pyplot as plt
-#random.seed(134)
+
 
 ##0. Exercise. Variance-covariance method for VaR & ES in linear portfolio: a simple example of data mining
 #import utilities
@@ -113,12 +113,14 @@ print('VaR1c=', VaR1c, '\n' ,'ES1c=', ES1c)
 VaR1C_correct, ES1C_correct = AnalyticalNormalMeasures(alpha, weights1c, portfolioValue, 10, returns1c)
 err_VaR = abs((VaR1c - VaR1C_correct) / VaR1C_correct)
 err_ES = abs((ES1c - ES1C_correct) / ES1C_correct)
+x=np.linspace(1,20,20)
 fig=plt.figure()
-plt.plot( err_VaR)
-plt.plot( err_ES)
+plt.plot(x, err_VaR[:,0],label='VaR_Error')
+plt.plot(x, err_ES[:,0], label='ES_Error')
 plt.title('PCA errors')
 plt.xlabel('Number of Principal Components')
 plt.ylabel('Error')
+plt.legend()
 plt.show()
 fig.savefig('PCA errors.png')
 
