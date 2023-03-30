@@ -139,13 +139,16 @@ def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike,
                      volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
     M = 10 ** 6
     n = len(logReturns)
+    # simulate a random set of dimension M of integer number between 1 and n
     Rand_simulation = np.random.randint(1, n, M)
+    # select the corresponding returns
     rand_returns = logReturns[Rand_simulation]
 
     d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
             volatility * np.sqrt(timeToMaturityInYears))
     delta_put=-np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
 
+    #compute the price of the stock at t + time_lag using the random set of returns
     stockPrice_new = stockPrice * np.exp(rand_returns)
     sensitivities = numberOfShares * stockPrice_new + delta_put * stockPrice_new  * numberOfPuts
     Loss = -sensitivities* rand_returns
@@ -159,7 +162,9 @@ def DeltaGammaNormal(logReturns, numberOfShares, numberOfPuts, stockPrice, strik
                      volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
     M = 10 ** 6
     n = len(logReturns)
+    #simulate a random set of dimension M of integer number between 1 and n
     Rand_simulation = np.random.randint(1, n, M)
+    #select the corresponding returns
     rand_returns = logReturns[Rand_simulation]
 
     d1 = (np.log(stockPrice / strike) + (rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
@@ -168,7 +173,9 @@ def DeltaGammaNormal(logReturns, numberOfShares, numberOfPuts, stockPrice, strik
 
     gamma_put = np.exp(-dividend * timeToMaturityInYears) * norm.pdf(d1)/(stockPrice*volatility*np.sqrt(timeToMaturityInYears))
 
+    #compute the price of the stock at t + time_lag using the random set of returns
     stockPrice_new = stockPrice * np.exp(rand_returns)
+    #sensitivities
     delta_sensitivities = numberOfShares * stockPrice_new + delta_put * stockPrice_new  * numberOfPuts
     gamma_sensitivities = numberOfPuts * stockPrice_new**2 *gamma_put
     #Loss as deltanormal case + the gamma factor
@@ -203,13 +210,15 @@ def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recove
     s[:,0]= StockPrice *  np.exp(rates[0] -0.5 * volatility**2 + volatility*u[:,0])
     #cumulative sum over years
     u_cumsum=np.cumsum(u,axis=1)
-    #simulated stock at the others years using the cumulative s
+    #simulated stock at the others years using the cumulative sum
     s = StockPrice * np.exp((rates - 0.5 * volatility ** 2) * np.arange(1,5) + volatility * u_cumsum)
+    #compute payoff as the positive part of the difference of the stock and the strike using the stock at the previous year
+    payoff[:, 0] = np.maximum(s[:, 0] - StockPrice, 0)
     payoff[:,1:] = np.maximum(s[:, 1:] - s[:, :-1], 0)
     
-
-    Cliquet = np.sum((np.mean(payoff,axis=0)*discounts)*SurvProb[1:]) +recovery * np.sum(np.mean(payoff,axis=0)*discounts*(SurvProb[:- 1]-SurvProb[1:]))
-
+    #compute the correct price of the cliquet
+    Cliquet = np.sum((np.mean(payoff,axis=0)*discounts)*SurvProb[1:]) #+recovery * np.sum(np.mean(payoff,axis=0)*discounts*(SurvProb[:- 1]-SurvProb[1:]))
+    #compute the price with no risk of default
     Cliquet_riskfree = np.sum((np.mean(payoff,axis=0)*discounts))
 
     return Cliquet, Cliquet_riskfree

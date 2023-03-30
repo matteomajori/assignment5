@@ -68,7 +68,7 @@ np.random.seed(50)
 Rand_simulation=np.random.randint(0,n,size=M)
 #select random returns
 returns1s=returns1a[:,Rand_simulation]
-# Apply HS method with the the selected random returns
+# Apply HS method with the selected random returns
 VaR1a2,ES1a2=HSMeasurements(returns1s,alpha,weights1a,portfolioValue,riskMeasureTimeIntervalInDay)
 print('VaR1a2=',VaR1a2,'ES1a2=',ES1a2)
 #Plausibility Check
