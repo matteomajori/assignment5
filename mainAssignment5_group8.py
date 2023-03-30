@@ -129,7 +129,7 @@ err_VaR = abs((VaR1c - VaR1C_correct) / VaR1C_correct)
 #compute the ES error using PCA
 err_ES = abs((ES1c - ES1C_correct) / ES1C_correct)
 x=np.linspace(1,20,20)
-fig=plt.figure()
+fig = plt.figure()
 plt.plot(x, err_VaR[:,0],label='VaR_Error')
 plt.plot(x, err_ES[:,0], label='ES_Error')
 plt.title('PCA errors')
@@ -138,6 +138,7 @@ plt.ylabel('Error')
 plt.legend()
 plt.show()
 fig.savefig('PCA errors.png')
+
 
 #Plausibility Check
 VaR_check1c = plausibilityCheck(returns1c, weights1c, alpha, portfolioValue, 10)
