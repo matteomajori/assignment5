@@ -179,19 +179,21 @@ def PutPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears):
 
 def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recovery):
     M = 10 ** 6
+    #random set of realization of standard normal for every year
     u = np.random.standard_normal((M,4))
+    #inizializations
     s=np.zeros((M,4))
-    s[:,0]= StockPrice *  np.exp(rates[0] -0.5 * volatility**2 + volatility*u[:,0])
     payoff=np.zeros((M,4))
+    #simulated stock 
+    s[:,0]= StockPrice *  np.exp(rates[0] -0.5 * volatility**2 + volatility*u[:,0])
+
 
     #compute S_ti and the payoff of the cliquet
     u_cumsum=np.cumsum(u,axis=1)
     s = StockPrice * np.exp((rates - 0.5 * volatility ** 2) * np.arange(1,5) + volatility * u_cumsum)# * np.sqrt( np.arange(1,5)))
     payoff[:,0] = np.maximum(s[:, 0] - StockPrice, 0)
     payoff[:,1:] = np.maximum(s[:, 1:] - s[:, :-1], 0)
-    #for i in range(1,4):
-        #s[:, i] = s[:,i-1] * np.exp(rates[i] - 0.5 * volatility ** 2 + volatility * u[:, i])
-        #payoff[:,i] = np.maximum(s[:, i] - s[:, i-1], 0)
+    
 
     Cliquet = np.sum((np.mean(payoff,axis=0)*discounts)*SurvProb[1:]) +recovery * np.sum(np.mean(payoff,axis=0)*discounts*(SurvProb[:- 1]-SurvProb[1:]))
 

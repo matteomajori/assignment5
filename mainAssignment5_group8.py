@@ -164,14 +164,18 @@ print('VaR_deltaGammaNorm=',VaR_DeltaGammaNorm)
 
 ## 3. Case study: Pricing in presence of counterparty risk
 #Pricing the Cliquet option
-StockPrice=df['ISP.MI'].loc['2023-02-02'] #2.455
+#price of the stock of ISP at 02-02-2023 = 2.455
+StockPrice=df['ISP.MI'].loc['2023-02-02']
 volatility= 25/100
 recovery=40/100
-notional=50*10**6
-SurvProbOnCliquet=np.array([1,0.99501246882793,0.988947643459277,0.982200758595402,0.975067029599282])#,0.968068421415452
-rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659033079144])#,0.028120109979533])
+#survival probability at payment dates of Cliquet option (every year from 02-02-2023 to 02-02-2027
+SurvProbOnCliquet=np.array([1,0.99501246882793,0.988947643459277,0.982200758595402,0.975067029599282])
+#risk-free rates
+rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659033079144])
+#discounts factor at payment dates
 discounts=np.concatenate((np.array([0.968924542714243]),np.array(discounts)[12:15]))
 
+#compute correct cliquet price and cliquet price at which ISP would try to sell it
 cliquet_price, cliquet_riskfree_price = CliquetPrice_numerical(volatility,StockPrice,SurvProbOnCliquet,discounts,rates,recovery)
 cliquet_price=cliquet_price*notional
 cliquet_riskfree_price=cliquet_riskfree_price*notional
