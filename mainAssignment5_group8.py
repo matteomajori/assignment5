@@ -114,14 +114,14 @@ yearlyCovariance=np.cov(returns1c)*256
 weights1c= 1/20*np.ones(20)  #equally weighted portfolio
 #time lag
 H=10/256
-n=range(1,21)
+n=range(1,21) #we use a greater range to plot the error vs Analytical measure
 ES1c=np.zeros((len(n),1))
 VaR1c=np.zeros((len(n),1))
 #compute VaR and Es with Principal Component Analysis changing the number of components n=1:6
 for i in n:
     VaR1c[i-1],ES1c[i-1]  = PrincCompAnalysis(yearlyCovariance, yearlyMeanReturns, weights1c, H, alpha, i , portfolioValue)
-
-print('VaR1c=', VaR1c, '\n' ,'ES1c=', ES1c)
+#print the first 6 components as asked in the exercise
+print('VaR1c=', VaR1c[0:6], '\n' ,'ES1c=', ES1c[0:6])
 #Plot of the PrincCompAnalysis and the exact result from exercise 0
 VaR1C_correct, ES1C_correct = AnalyticalNormalMeasures(alpha, weights1c, portfolioValue, 10, returns1c)
 #compute the VaR error using PCA
