@@ -114,16 +114,13 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
                           timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
     #compute VaR using Full MOnteCarlo Valuation method
     M = 10 ** 6
+    #compute put prices
     put_price = PutPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears)
-    # Random indexes: to check
+    #select random indexes and returns
     n = len(logReturns.T)
     rand_simulation = np.random.randint(1, n, M)
     rand_returns = logReturns[rand_simulation]
-    #oppure
-    #mean=mean(logReturns.T)
-    #stdev = np.sqrt(np.cov(returns))
-    #rand_returns = mean+stdev*rand_simulation
-
+    #compute the new stock price with random returns
     stockPrice_new = stockPrice * np.exp(rand_returns) #stockPrice_new = stockPrice * np.exp(logReturns)
     timeToMat_New=timeToMaturityInYears-riskMeasureTimeIntervalInYears
     put_price_new = PutPrice(rate, stockPrice_new, strike, dividend, volatility, timeToMat_New)
@@ -132,11 +129,13 @@ def FullMonteCarloVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, stri
     # compute VaR
     # we call time lag the delta of the VaR
     time_lag=riskMeasureTimeIntervalInYears*NumberOfDaysPerYears
+    #compute VaR
     VaR = np.sqrt(time_lag) * np.quantile(Loss, alpha)
     return VaR
 
 def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
                      volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
+    #compute VaR using Delta Normal method
     M = 10 ** 6
     n = len(logReturns)
     # simulate a random set of dimension M of integer number between 1 and n
@@ -144,33 +143,38 @@ def DeltaNormalVaR(logReturns, numberOfShares, numberOfPuts, stockPrice, strike,
     # select the corresponding returns
     rand_returns = logReturns[Rand_simulation]
     timeToMat_New = timeToMaturityInYears - riskMeasureTimeIntervalInYears
+    #B&S factor d1
     d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMat_New) / (
             volatility * np.sqrt(timeToMat_New))
-
+    #B&S delta of a put 
     delta_put=-np.exp(-dividend * timeToMat_New) * norm.cdf(-d1)
 
     #compute the price of the stock at t + time_lag using the random set of returns
     stockPrice_new = stockPrice * np.exp(rand_returns)
+    #Loss of the portfolio
     Loss = -(numberOfShares + delta_put * numberOfPuts)*stockPrice_new* rand_returns
     #VaR
     # we call time lag the delta of the VaR
     time_lag = int(riskMeasureTimeIntervalInYears * NumberOfDaysPerYears)
+    #Compute VaR
     VaR = np.sqrt(time_lag)* np.percentile(Loss, 100 * alpha)
     return VaR
 
 def DeltaGammaNormal(logReturns, numberOfShares, numberOfPuts, stockPrice, strike, rate, dividend,
                      volatility, timeToMaturityInYears, riskMeasureTimeIntervalInYears, alpha, NumberOfDaysPerYears):
+    #compute VaR using Delta Gamma Normal method
     M = 10 ** 6
     n = len(logReturns)
     #simulate a random set of dimension M of integer number between 1 and n
     Rand_simulation = np.random.randint(1, n, M)
     #select the corresponding returns
     rand_returns = logReturns[Rand_simulation]
-
+    #B&S factor d1
     d1 = (np.log(stockPrice / strike) + (rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
             volatility * np.sqrt(timeToMaturityInYears))
+    #B&S delta of a put
     delta_put = -np.exp(-dividend * timeToMaturityInYears) * norm.cdf(-d1)
-
+    #B&S gamma of a put
     gamma_put = np.exp(-dividend * timeToMaturityInYears) * norm.pdf(d1)/(stockPrice*volatility*np.sqrt(timeToMaturityInYears))
 
     #compute the price of the stock at t + time_lag using the random set of returns
@@ -182,22 +186,24 @@ def DeltaGammaNormal(logReturns, numberOfShares, numberOfPuts, stockPrice, strik
     Loss = -delta_sensitivities* rand_returns - (gamma_sensitivities * rand_returns**2 )/2
     # we call time lag the delta of the VaR
     time_lag =int(riskMeasureTimeIntervalInYears * NumberOfDaysPerYears)
+    #Compute VaR
     VaR = np.sqrt(time_lag) * np.percentile(Loss, 100 * alpha)
     return VaR
 
 
 def PutPrice(rate,stockPrice,strike,dividend,volatility,timeToMaturityInYears):
+    #Auxiliary function that computes the B&S put price
     d1 = (np.log(stockPrice / strike) + ( rate - dividend + volatility ** 2 / 2.) * timeToMaturityInYears) / (
             volatility * np.sqrt(timeToMaturityInYears))
     d2 = d1 - volatility * np.sqrt(timeToMaturityInYears)
     F=stockPrice * np.exp((rate -dividend) * timeToMaturityInYears)
-
-    #price = np.exp(-rate * timeToMaturityInYears) * (F * norm.cdf(-d1) - strike * norm.cdf(-d2))
+    #put price
     price = np.exp(-rate * timeToMaturityInYears) * (-F * norm.cdf(-d1) + strike * norm.cdf(-d2))
     return price
 
 
-def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recovery):
+def CliquetPrice(volatility,StockPrice,SurvProb,discounts,rates,recovery):
+    #Computes price of a Cliquet option
     M = 10 ** 6
     #random set of realization of standard normal for every year
     u = np.random.standard_normal((M,4))
@@ -217,7 +223,7 @@ def CliquetPrice_numerical(volatility,StockPrice,SurvProb,discounts,rates,recove
     payoff[:,1:] = np.maximum(s[:, 1:] - s[:, :-1], 0)
     
     #compute the correct price of the cliquet
-    Cliquet = np.sum((np.mean(payoff,axis=0)*discounts)*SurvProb[1:]) #+recovery * np.sum(np.mean(payoff,axis=0)*discounts*(SurvProb[:- 1]-SurvProb[1:]))
+    Cliquet = np.sum((np.mean(payoff,axis=0)*discounts)*SurvProb[1:]) +recovery * np.sum(np.mean(payoff,axis=0)*discounts*(SurvProb[:- 1]-SurvProb[1:]))
     #compute the price with no risk of default
     Cliquet_riskfree = np.sum((np.mean(payoff,axis=0)*discounts))
 
