@@ -222,8 +222,8 @@ def CliquetPrice(volatility,StockPrice,SurvProb,discounts,rates,recovery):
     payoff[:, 0] = np.maximum(s[:, 0] - StockPrice, 0)
     payoff[:,1:] = np.maximum(s[:, 1:] - s[:, :-1], 0)
     
-    #compute the correct price of the cliquet
-    Cliquet = np.sum((np.mean(payoff,axis=0)*discounts)*SurvProb[1:]) +recovery * np.sum(np.mean(payoff,axis=0)*discounts*(SurvProb[:- 1]-SurvProb[1:]))
+    #compute the correct price of the cliquet, we suppose that the recovery of an exotic option is zero because of seniority
+    Cliquet = np.sum((np.mean(payoff,axis=0)*discounts)*SurvProb[1:]) #+recovery * np.sum(np.mean(payoff,axis=0)*discounts*(SurvProb[:- 1]-SurvProb[1:]))
     #compute the price with no risk of default
     Cliquet_riskfree = np.sum((np.mean(payoff,axis=0)*discounts))
 
