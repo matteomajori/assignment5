@@ -204,7 +204,8 @@ rates = np.array([0.031568541419429,0.031450996290326,0.029721790673799,0.028659
 discounts=np.concatenate((np.array([0.968924542714243]),np.array(discounts)[12:15]))
 
 #compute correct cliquet price and cliquet price at which ISP would try to sell it
-cliquet_price, cliquet_riskfree_price = CliquetPrice(volatility,StockPrice,SurvProbOnCliquet,discounts,rates,recovery)
+cliquet_price, cliquet_norecovery,  cliquet_riskfree_price = CliquetPrice(volatility,StockPrice,SurvProbOnCliquet,discounts,rates,recovery)
 cliquet_price=cliquet_price*notional
 cliquet_riskfree_price=cliquet_riskfree_price*notional
-print('cliquet_price',cliquet_price,'cliquet_riskfree_price',cliquet_riskfree_price)
+cliquet_norecovery=cliquet_norecovery * notional
+print('cliquet_price',cliquet_price,'cliquet_riskfree_price',cliquet_riskfree_price, 'cliquet_norecovery_price', cliquet_norecovery)
